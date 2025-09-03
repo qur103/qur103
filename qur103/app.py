@@ -11,7 +11,7 @@ st.title("HTML 파일 불러오기")
 
 # HTML 파일이 위치한 경로를 설정합니다.
 # 사용자의 요청에 따라 'htmls' 폴더 내의 'index.html'을 가리킵니다.
-html_file_path = pathlib.Path("./htmls/index.html")
+html_file_path = pathlib.Path("index.html")
 
 try:
     # 지정된 경로에 파일이 있는지 확인합니다.
@@ -44,3 +44,4 @@ st.markdown(
     4. 터미널에서 `streamlit run app.py` 명령어를 실행하여 앱을 시작합니다.
     """
 )
+
