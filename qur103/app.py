@@ -11,8 +11,10 @@ def main():
         initial_sidebar_state="expanded"
     )
 
-    # HTML 파일의 경로를 설정합니다.
-    html_file_path = os.path.join("htmls", "index.html")
+    # 현재 파일(app.py)의 절대 경로를 얻습니다.
+    current_dir = os.path.dirname(__file__)
+    # HTML 파일의 절대 경로를 설정합니다.
+    html_file_path = os.path.join(current_dir, "htmls", "index.html")
 
     # HTML 파일을 읽어서 변수에 저장합니다.
     try:
