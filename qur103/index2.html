@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생 조 편성기 (Python Flask)</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result-container {
+            margin-top: 30px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .team-list {
+            list-style: none;
+            padding: 0;
+        }
+        .team-item {
+            background-color: #ecf0f1;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>👨‍👩‍👧‍👦 학생 조 편성기</h1>
+    <div class="input-group">
+        <label for="students">학생 이름 (쉼표로 구분):</label>
+        <input type="text" id="students" placeholder="예: Alice, Bob, Charlie">
+    </div>
+    <div class="input-group">
+        <label for="group-size">한 조의 인원수:</label>
+        <input type="number" id="group-size" value="3">
+    </div>
+    <div class="input-group">
+        <label for="preferences">선호 관계 (예: Alice:Bob,David):</label>
+        <textarea id="preferences" rows="3" placeholder="한 줄에 하나의 관계를 입력&#10;예: Alice:Bob,David&#10;예: Charlie:Eve"></textarea>
+    </div>
+    <div class="input-group">
+        <label for="dislikes">비선호 관계 (예: Bob:Charlie,David):</label>
+        <textarea id="dislikes" rows="3" placeholder="한 줄에 하나의 관계를 입력&#10;예: Bob:Charlie&#10;예: Frank:Heidi"></textarea>
+    </div>
+    <button id="generate-button">조 편성하기</button>
+
+    <div class="result-container" id="result-container" style="display: none;">
+        <h2>✅ 편성 결과</h2>
+        <ul class="team-list" id="team-results"></ul>
+    </div>
+</div>
+
+<script>
+    document.getElementById('generate-button').addEventListener('click', () => {
+        // 1. 사용자 입력 값 가져오기
+        const studentsInput = document.getElementById('students').value;
+        const groupSize = document.getElementById('group-size').value;
+        const preferencesInput = document.getElementById('preferences').value;
+        const dislikesInput = document.getElementById('dislikes').value;
+
+        // 2. 서버로 보낼 데이터 객체 생성
+        const data = {
+            students: studentsInput,
+            groupSize: groupSize,
+            preferences: preferencesInput,
+            dislikes: dislikesInput
+        };
+
+        // 3. fetch API를 사용하여 서버에 POST 요청
+        fetch('/generate_teams', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            // 4. 서버로부터 받은 결과를 화면에 표시
+            const teamResultsList = document.getElementById('team-results');
+            teamResultsList.innerHTML = '';
+            result.teams.forEach((team, index) => {
+                const teamItem = document.createElement('li');
+                teamItem.className = 'team-item';
+                teamItem.textContent = `Team ${index + 1}: ${team.join(', ')}`;
+                teamResultsList.appendChild(teamItem);
+            });
+            document.getElementById('result-container').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('조 편성 중 오류가 발생했습니다.');
+        });
+    });
+</script>
+
+</body>
+</html>
