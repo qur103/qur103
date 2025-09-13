@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>학생 조 편성기 & 연구 계획</title>
+    <title>학생 조 편성기 & 연구 계획 & 1인용 첸토 게임</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -44,6 +44,7 @@
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
             text-align: center;
+            text-decoration: none;
         }
         .tab-button.active {
             background-color: #3498db;
@@ -160,6 +161,63 @@
             text-align: center;
             margin-left: 10px;
         }
+        
+        /* 첸토 게임 카드 스타일 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            justify-items: center;
+        }
+        .card {
+            width: 100%;
+            max-width: 80px;
+            height: 110px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold; /* Bold font-weight for cards */
+            color: #1f2937;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .card.is-set {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .card.is-placeholder {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+        .card.selected {
+            border-color: #3498db;
+            box-shadow: 0 0 0 4px #3498db;
+        }
+        .saved-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .saved-card {
+            width: 70px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold; /* Bold font-weight for saved cards */
+            color: #ffffff;
+            background-color: #3b82f6;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +226,7 @@
 <div class="tabs">
     <button class="tab-button active" onclick="showTab('research')">비매너 행위 예측 연구</button>
     <button class="tab-button" onclick="showTab('generator')">학생 조 편성기</button>
+    <button class="tab-button" onclick="showTab('cento')">1인용 첸토 게임</button>
 </div>
 
 <!-- 비매너 행위 예측 연구 섹션 -->
@@ -234,7 +293,7 @@
                 </ul>
             </div>
             <!-- 데이터 분석 및 모델링 카드 -->
-            <div class="bg-gray-700 p-6 rounded-xl shadow-inner border border-gray-600">
+            <div class="bg-gray-700 p-6 rounded-xl shadow-xl shadow-inner border border-gray-600">
                 <h3 class="text-xl font-semibold text-gray-100 mb-2">분석 및 모델링</h3>
                 <p class="text-gray-400 leading-relaxed mb-4">
                     수집된 데이터를 통계적으로 분석하고 머신러닝 모델을 구축합니다.
@@ -309,27 +368,94 @@
     </div>
 </div>
 
+<!-- 1인용 첸토 게임 섹션 -->
+<div class="content-section mx-auto hidden" id="cento-game-view">
+    <h1 class="text-4xl font-bold text-center mb-4 text-blue-400">🃏 1인용 첸토 게임</h1>
+    <div class="text-center mb-6">
+        <p class="text-lg font-semibold text-gray-300">
+            1부터 100까지의 카드를 오름차순으로 10개의 보드 칸에 모두 채워 넣는 게임입니다.
+            <br>카드를 한 장씩 뽑아 배치하거나 저장하여 다음 기회를 노릴 수 있습니다.
+            <br>최대한 적은 턴으로 모든 카드를 완성하는 것이 목표입니다.
+        </p>
+        <p id="game-rules" class="text-left mt-4 text-gray-400 text-sm">
+            <strong class="text-blue-300">게임 규칙:</strong>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+                <li>게임 시작: 게임 시작 시 덱에서 2장의 카드를 뽑아 보드에 직접 배치합니다.</li>
+                <li>카드 배치: 뽑은 카드를 비어있는 보드 칸에 놓습니다. 보드에 있는 카드들은 항상 오름차순을 유지해야 합니다. (예: `50` 옆에 `40`을 놓을 수 없습니다.)</li>
+                <li>카드 저장: 뽑은 카드를 따로 저장해두고 다음 턴에 다시 사용하거나, 필요 없어지면 버릴 수 있습니다. 저장된 카드는 턴을 사용하지 않습니다.</li>
+                <li>저장 카드 배치: 저장해둔 카드를 보드의 빈칸에 배치합니다. 이 행동은 턴을 사용하지 않습니다.</li>
+                <li>카드 교환: 보드에 있는 카드 2장의 위치를 교환할 수 있습니다. 이미 카드가 있는 칸뿐만 아니라, 빈칸과도 교환이 가능합니다. 이 행동은 턴을 사용합니다.</li>
+                <li>연속 숫자 보너스: 카드를 배치하거나 교환한 후, 그 카드가 주변(왼쪽 또는 오른쪽)의 카드와 연속하는 숫자일 경우(예: `50` 옆에 `49` 또는 `51`을 놓는 경우), 추가 턴을 얻어 다시 한 번 행동을 수행할 수 있습니다.</li>
+            </ul>
+        </p>
+    </div>
+    <p id="turn-counter" class="text-xl font-bold text-gray-400 mt-2 text-center">현재 턴: 0</p>
+    <p id="game-message" class="text-center text-lg font-bold text-gray-300 mb-4"></p>
+    
+    <div id="drawn-cards-container" class="flex justify-center space-x-4 mb-4" style="display: none;">
+        <div id="drawn-card-1" class="card"></div>
+        <div id="drawn-card-2" class="card"></div>
+    </div>
+    
+    <div id="action-buttons" class="flex flex-wrap justify-center space-x-2 sm:space-x-4 mb-4" style="display: none;">
+        <button id="place-card-btn" class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg">카드 배치하기</button>
+        <button id="save-card-btn" class="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg">카드 저장하기</button>
+        <button id="place-saved-btn" class="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg">저장 카드 배치</button>
+        <button id="swap-cards-btn" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg">카드 위치 교환</button>
+    </div>
+    
+    <div id="game-board-container" class="mb-6">
+        <div id="game-board" class="card-grid">
+            <!-- 카드들이 여기에 동적으로 생성됩니다 -->
+        </div>
+    </div>
+    
+    <button id="draw-card-btn" class="flex-1" style="display: none;">카드 뽑기</button>
+    <button id="start-game-btn" class="flex-1">게임 시작</button>
+    <button id="restart-game-btn" class="flex-1 mt-4" style="display: none;">게임 재시작</button>
+
+    <div id="saved-cards-container" class="mt-8">
+        <h2 class="text-xl font-bold text-gray-300 mb-2 text-center">저장된 카드</h2>
+        <div id="saved-cards-grid" class="saved-card-container">
+            <!-- 저장된 카드들이 여기에 나타납니다 -->
+        </div>
+    </div>
+</div>
+
 <script>
     /**
      * 탭을 전환하고 활성화된 탭을 표시합니다.
-     * @param {string} tabName - 'research' 또는 'generator'
+     * @param {string} tabName - 'research', 'generator' 또는 'cento'
      */
     function showTab(tabName) {
         const researchView = document.getElementById('research-plan-view');
         const generatorView = document.getElementById('team-generator-view');
+        const centoView = document.getElementById('cento-game-view');
+        
         const researchButton = document.querySelector('.tab-button:nth-child(1)');
         const generatorButton = document.querySelector('.tab-button:nth-child(2)');
+        const centoButton = document.querySelector('.tab-button:nth-child(3)');
 
-        if (tabName === 'research') {
-            researchView.classList.remove('hidden');
-            generatorView.classList.add('hidden');
-            researchButton.classList.add('active');
-            generatorButton.classList.remove('active');
-        } else {
-            researchView.classList.add('hidden');
-            generatorView.classList.remove('hidden');
-            researchButton.classList.remove('active');
-            generatorButton.classList.add('active');
+        researchView.classList.add('hidden');
+        generatorView.classList.add('hidden');
+        centoView.classList.add('hidden');
+        researchButton.classList.remove('active');
+        generatorButton.classList.remove('active');
+        centoButton.classList.remove('active');
+
+        switch (tabName) {
+            case 'research':
+                researchView.classList.remove('hidden');
+                researchButton.classList.add('active');
+                break;
+            case 'generator':
+                generatorView.classList.remove('hidden');
+                generatorButton.classList.add('active');
+                break;
+            case 'cento':
+                centoView.classList.remove('hidden');
+                centoButton.classList.add('active');
+                break;
         }
     }
 
@@ -368,7 +494,6 @@
                 input.setAttribute('data-for-student', optionStudent);
                 
                 itemDiv.appendChild(itemLabel);
-                itemDiv.appendChild(input);
                 inputsDiv.appendChild(itemDiv);
             });
             
@@ -448,7 +573,6 @@
         
         const groupSize = parseInt(document.getElementById('group-size').value, 10);
         if (isNaN(groupSize) || groupSize <= 0) {
-            // alert는 사용하지 않으므로, 사용자에게 메시지 표시
             console.error('유효한 조 인원수를 입력해주세요.');
             return;
         }
@@ -463,7 +587,7 @@
             const forStudent = input.getAttribute('data-for-student');
             const score = parseInt(input.value, 10) || 0;
             if (score >= 1 && score <= 10) {
-                 preferences[student][forStudent] = score;
+                    preferences[student][forStudent] = score;
             }
         });
 
@@ -487,11 +611,446 @@
         }
     });
 
-    // 화면 로드 시 학생 입력란 초기화 및 UI 생성
+    // 첸토 게임 로직
+    const gameBoardElement = document.getElementById('game-board');
+    const drawnCardsContainer = document.getElementById('drawn-cards-container');
+    const drawnCard1 = document.getElementById('drawn-card-1');
+    const drawnCard2 = document.getElementById('drawn-card-2');
+    const savedCardsGrid = document.getElementById('saved-cards-grid');
+    const gameMessage = document.getElementById('game-message');
+    const turnCounterElement = document.getElementById('turn-counter');
+    const actionButtons = document.getElementById('action-buttons');
+    const drawCardBtn = document.getElementById('draw-card-btn');
+    const startGameBtn = document.getElementById('start-game-btn');
+    const restartGameBtn = document.getElementById('restart-game-btn');
+    const placeCardBtn = document.getElementById('place-card-btn');
+    const saveCardBtn = document.getElementById('save-card-btn');
+    const placeSavedBtn = document.getElementById('place-saved-btn');
+    const swapCardsBtn = document.getElementById('swap-cards-btn');
+
+    let deck = [];
+    let board = [];
+    let savedCards = [];
+    let turn = 0;
+    let state = 'initial';
+    let drawnCards = [];
+    let selectedSavedCard = null;
+    let selectedSavedCardIndex = null;
+    let selectedBoardCards = [];
+    let selectedDrawnCard = null;
+
+    /**
+     * 게임 보드를 렌더링합니다.
+     */
+    function renderBoard() {
+        gameBoardElement.innerHTML = '';
+        for (let i = 0; i < 10; i++) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `card ${board[i] !== null ? 'is-set' : 'is-placeholder'}`;
+            cardDiv.textContent = board[i] !== null ? board[i] : '?';
+            cardDiv.dataset.index = i;
+            gameBoardElement.appendChild(cardDiv);
+        }
+        updateBoardClickListeners();
+    }
+
+    /**
+     * 저장된 카드 목록을 렌더링합니다.
+     */
+    function renderSavedCards() {
+        savedCardsGrid.innerHTML = '';
+        savedCards.forEach((card, index) => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `saved-card`;
+            cardDiv.textContent = card;
+            cardDiv.dataset.index = index;
+            savedCardsGrid.appendChild(cardDiv);
+        });
+        updateSavedCardsClickListeners();
+    }
+
+    /**
+     * 게임을 초기화합니다.
+     */
+    function initializeGame() {
+        // 덱을 1부터 100까지의 숫자로 초기화하고 섞습니다.
+        deck = Array.from({ length: 100 }, (_, i) => i + 1);
+        deck.sort(() => Math.random() - 0.5);
+        
+        // 보드와 저장된 카드들을 초기화합니다.
+        board = new Array(10).fill(null);
+        savedCards = [];
+        turn = 0;
+        
+        // 초기 상태 설정
+        state = 'initial';
+        gameMessage.textContent = '덱에서 카드를 뽑고 있습니다...';
+        drawCardBtn.style.display = 'none';
+        startGameBtn.style.display = 'none';
+        restartGameBtn.style.display = 'block';
+        actionButtons.style.display = 'none';
+        drawnCardsContainer.style.display = 'none';
+
+        renderBoard();
+        renderSavedCards();
+        
+        // 게임 시작 시 카드 2장 뽑고 보드에 배치
+        drawAndPlaceInitialCards();
+    }
+
+    /**
+     * 게임 시작 시 첫 두 장의 카드를 뽑고 보드에 배치합니다.
+     */
+    function drawAndPlaceInitialCards() {
+        if (deck.length >= 2) {
+            drawnCards = [deck.shift(), deck.shift()];
+            drawnCard1.textContent = drawnCards[0];
+            drawnCard2.textContent = drawnCards[1];
+            
+            drawnCardsContainer.style.display = 'flex';
+            
+            gameMessage.textContent = `뽑은 카드: ${drawnCards[0]}, ${drawnCards[1]}. 두 카드 중 하나를 선택하여 보드에 배치하세요.`;
+            state = 'placing_initial_1';
+            
+            // 초기 카드 선택 리스너 추가
+            drawnCard1.addEventListener('click', () => selectDrawnCard(0));
+            drawnCard2.addEventListener('click', () => selectDrawnCard(1));
+        } else {
+            gameMessage.textContent = '덱에 카드가 부족하여 게임을 시작할 수 없습니다.';
+        }
+    }
+    
+    /**
+     * 뽑은 카드 중 하나를 선택합니다.
+     * @param {number} index - 선택된 카드의 인덱스 (0 또는 1)
+     */
+    function selectDrawnCard(index) {
+        selectedDrawnCard = drawnCards[index];
+        gameMessage.textContent = `${selectedDrawnCard} 카드를 배치할 보드 위치를 선택하세요.`;
+        state = 'placing_initial_2';
+        drawnCard1.classList.remove('selected');
+        drawnCard2.classList.remove('selected');
+        if (index === 0) {
+            drawnCard1.classList.add('selected');
+        } else {
+            drawnCard2.classList.add('selected');
+        }
+        updateBoardClickListeners();
+    }
+
+
+    /**
+     * 턴 수를 업데이트합니다.
+     */
+    function updateTurnCounter() {
+        turnCounterElement.textContent = `현재 턴: ${turn}`;
+    }
+    
+    /**
+     * 연속하는 숫자가 있는지 확인합니다.
+     * @param {number} index - 방금 카드를 놓은 위치
+     * @param {number} cardValue - 놓은 카드의 값
+     * @returns {boolean} - 연속하는 숫자가 있으면 true
+     */
+    function checkForConsecutiveNumbers(index, cardValue) {
+        let isConsecutive = false;
+        // 왼쪽 카드 확인
+        if (index > 0 && board[index - 1] !== null && (board[index - 1] === cardValue - 1 || board[index - 1] === cardValue + 1)) {
+            isConsecutive = true;
+        }
+        // 오른쪽 카드 확인
+        if (index < board.length - 1 && board[index + 1] !== null && (board[index + 1] === cardValue - 1 || board[index + 1] === cardValue + 1)) {
+            isConsecutive = true;
+        }
+        return isConsecutive;
+    }
+
+    /**
+     * 턴을 진행합니다.
+     * @param {number} index - 카드를 배치한 위치
+     * @param {number} value - 카드의 값
+     */
+    function advanceTurn(index, value) {
+        if (checkForConsecutiveNumbers(index, value)) {
+            gameMessage.textContent = '🎉 연속하는 숫자를 만들었습니다! 보너스 턴을 얻었습니다!';
+        } else {
+            turn++;
+            updateTurnCounter();
+        }
+    }
+
+    /**
+     * 게임 보드 클릭 리스너를 업데이트합니다.
+     */
+    function updateBoardClickListeners() {
+        document.querySelectorAll('#game-board .card').forEach(card => {
+            card.removeEventListener('click', handleBoardClick);
+            card.addEventListener('click', handleBoardClick);
+            card.classList.remove('selected');
+        });
+    }
+
+    /**
+     * 저장된 카드 클릭 리스너를 업데이트합니다.
+     */
+    function updateSavedCardsClickListeners() {
+        document.querySelectorAll('#saved-cards-grid .saved-card').forEach(card => {
+            card.removeEventListener('click', handleSavedCardClick);
+            card.addEventListener('click', handleSavedCardClick);
+        });
+    }
+
+    /**
+     * 보드 클릭을 처리합니다.
+     */
+    function handleBoardClick(e) {
+        const index = parseInt(e.target.dataset.index);
+
+        if (state === 'placing_initial_2') {
+             if (board[index] === null) {
+                board[index] = selectedDrawnCard;
+                drawnCards = drawnCards.filter(card => card !== selectedDrawnCard);
+                selectedDrawnCard = null;
+                
+                // 남은 카드가 있으면 다음 배치 단계로 이동
+                if (drawnCards.length > 0) {
+                    gameMessage.textContent = `남은 카드: ${drawnCards[0]}. 이 카드를 배치할 보드 위치를 선택하세요.`;
+                    selectedDrawnCard = drawnCards[0];
+                    drawnCardsContainer.style.display = 'flex';
+                    drawnCard1.textContent = drawnCards[0];
+                    drawnCard2.textContent = '';
+                    drawnCard1.classList.add('selected');
+                    drawnCard2.classList.remove('selected');
+                } else {
+                    drawnCardsContainer.style.display = 'none';
+                    state = 'initial';
+                    checkWinCondition();
+                }
+                
+                renderBoard();
+            } else {
+                gameMessage.textContent = '이미 카드가 있는 위치입니다. 다른 곳을 선택하세요.';
+            }
+        } else if (state === 'placing') {
+            const cardValue = drawnCards[0];
+            if (board[index] === null) {
+                board[index] = drawnCards.shift();
+                drawnCardsContainer.style.display = 'none';
+                renderBoard();
+                advanceTurn(index, cardValue);
+                checkWinCondition();
+            } else {
+                gameMessage.textContent = '이미 카드가 있는 위치입니다. 다른 곳을 선택하세요.';
+            }
+        } else if (state === 'placing_saved') {
+             const cardValue = selectedSavedCard;
+             if (board[index] === null) {
+                board[index] = selectedSavedCard;
+                savedCards.splice(selectedSavedCardIndex, 1);
+                selectedSavedCard = null;
+                selectedSavedCardIndex = null;
+                renderBoard();
+                renderSavedCards();
+                advanceTurn(index, cardValue);
+                checkWinCondition();
+            } else {
+                gameMessage.textContent = '이미 카드가 있는 위치입니다. 다른 곳을 선택하세요.';
+            }
+        } else if (state === 'swapping_1') {
+            selectedBoardCards.push(index);
+            e.target.classList.add('selected');
+            state = 'swapping_2';
+            gameMessage.textContent = '교환할 두 번째 칸을 선택하세요.';
+        } else if (state === 'swapping_2') {
+            if (selectedBoardCards[0] !== index) {
+                selectedBoardCards.push(index);
+                
+                const [idx1, idx2] = selectedBoardCards;
+                const temp = board[idx1];
+                board[idx1] = board[idx2];
+                board[idx2] = temp;
+                
+                // 교환 후 연속 숫자 확인
+                if (temp !== null) { // 첫 번째 카드가 존재했는지 확인
+                    advanceTurn(idx1, temp);
+                } else if (board[idx1] !== null) { // 두 번째 카드가 존재했는지 확인
+                    advanceTurn(idx1, board[idx1]);
+                } else {
+                    turn++;
+                    updateTurnCounter();
+                }
+                
+                selectedBoardCards = [];
+                renderBoard();
+                checkWinCondition();
+            } else {
+                gameMessage.textContent = '같은 위치는 선택할 수 없습니다. 다시 선택하세요.';
+            }
+        }
+    }
+
+    /**
+     * 저장된 카드 클릭을 처리합니다.
+     */
+    function handleSavedCardClick(e) {
+        if (state === 'placing_saved_select') {
+            selectedSavedCardIndex = parseInt(e.target.dataset.index);
+            selectedSavedCard = savedCards[selectedSavedCardIndex];
+            state = 'placing_saved';
+            gameMessage.textContent = `선택한 카드 ${selectedSavedCard}를 배치할 위치를 선택하세요.`;
+            placeSavedBtn.style.display = 'none';
+            swapCardsBtn.style.display = 'none';
+            updateSavedCardsClickListeners();
+        }
+    }
+
+    /**
+     * 승리 조건을 확인하고 다음 턴 버튼들을 활성화합니다.
+     */
+    function checkWinCondition() {
+        let isSorted = true;
+        let isFull = true;
+        for (let i = 0; i < 10; i++) {
+            if (board[i] === null) {
+                isFull = false;
+            }
+            if (i > 0 && board[i] !== null && board[i - 1] !== null && board[i] < board[i - 1]) {
+                isSorted = false;
+                break;
+            }
+        }
+        
+        if (isFull && isSorted) {
+            gameMessage.textContent = `🎉 모든 카드가 오름차순으로 정렬되었습니다! ${turn}턴만에 승리했습니다!`;
+            drawCardBtn.style.display = 'none';
+            actionButtons.style.display = 'none';
+        } else if (deck.length === 0 && savedCards.length === 0 && !isFull) {
+            gameMessage.textContent = `게임 오버! 덱과 저장된 카드가 모두 떨어졌습니다. ㅠㅠ`;
+            drawCardBtn.style.display = 'none';
+            actionButtons.style.display = 'none';
+        } else {
+            gameMessage.textContent = '카드를 뽑거나 다른 행동을 선택하세요.';
+            drawCardBtn.style.display = 'block';
+            actionButtons.style.display = 'flex';
+            placeCardBtn.style.display = 'none';
+            saveCardBtn.style.display = 'none';
+            // 보드에 카드가 하나라도 있으면 교환 버튼 활성화
+            swapCardsBtn.style.display = 'block';
+            // 저장된 카드가 있으면 배치 버튼 활성화
+            if (savedCards.length > 0) {
+                placeSavedBtn.style.display = 'block';
+            } else {
+                placeSavedBtn.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * '카드 뽑기' 버튼 클릭 핸들러
+     */
+    function handleDrawCard() {
+        if (deck.length > 0) {
+            drawnCards = [deck.shift()]; // 한 장만 뽑음
+            state = 'choosing_action';
+            drawnCardsContainer.style.display = 'flex';
+            drawnCard1.textContent = drawnCards[0];
+            drawnCard2.textContent = '';
+            gameMessage.textContent = '뽑은 카드를 배치하시겠습니까, 아니면 저장하시겠습니까?';
+            drawCardBtn.style.display = 'none';
+            actionButtons.style.display = 'flex';
+            placeCardBtn.style.display = 'block';
+            saveCardBtn.style.display = 'block';
+            placeSavedBtn.style.display = 'none';
+            swapCardsBtn.style.display = 'none';
+        } else {
+            gameMessage.textContent = '더 이상 뽑을 카드가 없습니다. 저장된 카드를 배치하거나, 카드 위치를 교환하세요.';
+            drawCardBtn.style.display = 'none';
+            checkWinCondition(); // 저장된 카드가 있을 경우 버튼 활성화
+        }
+    }
+
+    /**
+     * '카드 배치하기' 버튼 클릭 핸들러
+     */
+    function handlePlaceCard() {
+        state = 'placing';
+        gameMessage.textContent = `새로 뽑은 카드 ${drawnCards[0]}를 배치할 위치를 선택하세요.`;
+        placeCardBtn.style.display = 'none';
+        saveCardBtn.style.display = 'none';
+        placeSavedBtn.style.display = 'none';
+        swapCardsBtn.style.display = 'none';
+        updateBoardClickListeners();
+    }
+
+    /**
+     * '카드 저장하기' 버튼 클릭 핸들러
+     */
+    function handleSaveCard() {
+        savedCards.push(drawnCards.shift());
+        drawnCardsContainer.style.display = 'none';
+        renderSavedCards();
+        turn++;
+        updateTurnCounter();
+        gameMessage.textContent = `새로운 카드 ${savedCards[savedCards.length - 1]}를 저장했습니다.`;
+        checkWinCondition();
+    }
+
+    /**
+     * '저장 카드 배치' 버튼 클릭 핸들러
+     */
+    function handlePlaceSaved() {
+        if (savedCards.length > 0) {
+            state = 'placing_saved_select';
+            gameMessage.textContent = '배치할 저장 카드를 선택하세요.';
+            drawCardBtn.style.display = 'none';
+            actionButtons.style.display = 'none';
+            updateSavedCardsClickListeners();
+        } else {
+            gameMessage.textContent = '저장된 카드가 없습니다.';
+        }
+    }
+
+    /**
+     * '카드 위치 교환' 버튼 클릭 핸들러
+     */
+    function handleSwapCards() {
+        state = 'swapping_1';
+        selectedBoardCards = [];
+        gameMessage.textContent = '교환할 첫 번째 카드를 선택하세요.';
+        drawCardBtn.style.display = 'none';
+        actionButtons.style.display = 'none';
+        updateBoardClickListeners();
+    }
+
+    /**
+     * 게임 재시작 버튼 클릭 핸들러
+     */
+    function handleRestartGame() {
+        startGameBtn.style.display = 'block';
+        restartGameBtn.style.display = 'none';
+        drawCardBtn.style.display = 'none';
+        gameBoardElement.innerHTML = '';
+        savedCardsGrid.innerHTML = '';
+        drawnCardsContainer.style.display = 'none';
+        gameMessage.textContent = '게임 시작 버튼을 눌러주세요.';
+        turn = 0;
+        updateTurnCounter();
+        actionButtons.style.display = 'none';
+    }
+
+    // 이벤트 리스너
+    startGameBtn.addEventListener('click', initializeGame);
+    restartGameBtn.addEventListener('click', handleRestartGame);
+    drawCardBtn.addEventListener('click', handleDrawCard);
+    placeCardBtn.addEventListener('click', handlePlaceCard);
+    saveCardBtn.addEventListener('click', handleSaveCard);
+    placeSavedBtn.addEventListener('click', handlePlaceSaved);
+    swapCardsBtn.addEventListener('click', handleSwapCards);
+
+    // 초기화
     document.addEventListener('DOMContentLoaded', () => {
-        const initialStudents = document.getElementById('students').value.split(',').map(s => s.trim()).filter(s => s);
-        renderPreferenceInputs(initialStudents);
-        showTab('research'); // 페이지 로드 시 기본으로 연구 계획서 탭을 보여줍니다.
+        showTab('research');
+        handleRestartGame();
     });
 </script>
 
