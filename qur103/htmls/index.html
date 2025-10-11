@@ -3,1056 +3,1187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>학생 조 편성기 & 연구 계획 & 1인용 첸토 게임</title>
+    <title>정보과제연구 통합 대시보드</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 기본 스타일 */
+        /* Inter 폰트를 기본으로 사용 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            background-color: #111827;
-            color: #e5e7eb;
-            min-height: 100vh;
+            background-color: #f7fafc; /* Light Gray Background */
         }
-
-        /* 탭 메뉴 스타일 */
-        .tabs {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 20px;
-            background-color: #1f2937;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* Custom styles for subtle shadow and rounded corners */
+        .card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
         }
-        .tab-button {
-            flex: 1;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #9ca3af;
-            background-color: #1f2937;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            text-align: center;
-            text-decoration: none;
-        }
-        .tab-button.active {
-            background-color: #3498db;
-            color: #fff;
-        }
-        .tab-button:not(.active):hover {
-            background-color: #2b3543;
-            color: #e5e7eb;
-        }
-
-        /* 컨테이너 및 섹션 공통 스타일 */
-        .content-section {
-            background-color: #1f2937;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 900px;
-            padding: 40px;
-            margin-bottom: 30px;
-        }
-
-        /* 버튼 공통 스타일 */
-        button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin-top: 15px;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            text-align: center;
-            text-decoration: none;
-        }
-        button:hover {
-            background-color: #2980b9;
+        .card:hover {
             transform: translateY(-2px);
         }
+        .section-icon {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+        /* 스크롤바 커스터마이징 (선택 사항) */
+        #content-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        #content-area::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        .nav-active {
+            background-color: #0ea5e9 !important; /* sky-500 */
+            color: #ffffff !important;
+        }
 
-        /* 입력 필드 스타일 */
+        /* ------------------------------------------- */
+        /* [추가된 CSS] 조 편성기 및 첸토 게임 섹션 스타일 */
+        /* ------------------------------------------- */
+        /* 조 편성기 및 게임 입력 필드 공통 스타일 */
         input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #4b5563;
+            padding: 10px;
             border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-            background-color: #374151;
-            color: #d1d5db;
-            transition: border-color 0.3s;
-        }
-        input:focus, textarea:focus {
-            border-color: #3498db;
+            border: 1px solid #334155;
+            background-color: #1e293b;
+            color: #f7fafc;
             outline: none;
+            transition: border-color 0.2s;
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #9ca3af;
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #0ea5e9;
+            ring: 2px;
+            ring-color: #0ea5e9;
+        }
+        /* 버튼 공통 스타일 */
+        button {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.98);
         }
 
-        /* 결과 표시 스타일 */
-        .result-container {
-            margin-top: 30px;
-            border-top: 2px solid #374151;
-            padding-top: 20px;
-        }
-        .team-list {
-            list-style: none;
-            padding: 0;
-        }
-        .team-item {
-            background-color: #374151;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 1.1em;
-            color: #e5e7eb;
-        }
-        
-        /* 선호도 입력 UI 스타일 */
-        .preference-group {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border: 1px solid #374151;
-            border-radius: 8px;
-            background-color: #2b3543;
-        }
-        .preference-group h3 {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .preference-inputs {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .preference-inputs .preference-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .preference-inputs .preference-item label {
-            margin-bottom: 0;
-            flex-grow: 1;
-        }
-        .preference-inputs .preference-item input {
-            width: 80px;
-            text-align: center;
-            margin-left: 10px;
-        }
-        
         /* 첸토 게임 카드 스타일 */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            justify-items: center;
-        }
-        .card {
-            width: 100%;
-            max-width: 80px;
-            height: 110px;
+        .card-slot, .card-drawn, .card-saved {
+            width: 80px;
+            height: 120px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
-            font-weight: bold; /* Bold font-weight for cards */
-            color: #1f2937;
-            background-color: #ffffff;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 2px solid #e5e7eb;
-            transition: all 0.3s ease-in-out;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
             cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s, box-shadow 0.1s, border 0.1s;
         }
-        .card.is-set {
-            background-color: #d1fae5;
-            border-color: #10b981;
+        .card-slot {
+            background-color: #334155; /* 빈 슬롯은 어둡게 */
+            color: #94a3b8;
+            border: 2px dashed #475569;
+            font-size: 1rem;
         }
-        .card.is-placeholder {
-            background-color: #e5e7eb;
-            color: #6b7280;
+        .card-drawn, .card-saved {
+            background-color: #fef08a; /* 앰버 색상 계열 */
+            border: 2px solid #fcd34d;
         }
-        .card.selected {
-            border-color: #3498db;
-            box-shadow: 0 0 0 4px #3498db;
+        .card-slot.filled {
+            background-color: #e2e8f0; /* 채워진 카드는 밝게 */
+            color: #1e293b;
+            border: 2px solid #cbd5e1;
+        }
+        .card-slot.selected, .card-drawn.selected, .card-saved.selected {
+            box-shadow: 0 0 0 4px #0ea5e9; /* 선택 시 파란색 테두리 */
+            transform: translateY(-4px);
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 12px;
+            justify-content: center;
         }
         .saved-card-container {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            justify-center: center;
+            min-height: 120px;
+            background-color: #1e293b;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
         }
-        .saved-card {
-            width: 70px;
-            height: 90px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
-            font-weight: bold; /* Bold font-weight for saved cards */
-            color: #ffffff;
-            background-color: #3b82f6;
+        .team-result-item {
+            background-color: #1e293b;
+            color: #f7fafc;
+            padding: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
+            border-left: 4px solid #0ea5e9;
         }
     </style>
-</head>
-<body>
-
-<!-- 탭 메뉴 -->
-<div class="tabs">
-    <button class="tab-button active" onclick="showTab('research')">비매너 행위 예측 연구</button>
-    <button class="tab-button" onclick="showTab('generator')">학생 조 편성기</button>
-    <button class="tab-button" onclick="showTab('cento')">1인용 첸토 게임</button>
-</div>
-
-<!-- 비매너 행위 예측 연구 섹션 -->
-<div class="content-section mx-auto" id="research-plan-view">
-    <!-- 헤더 섹션 (로고 및 타이틀) -->
-    <header class="text-center py-8">
-        <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2">게임 속 비매너 행위 예측 연구</h1>
-        <p class="text-xl text-gray-400">외적 요소를 활용한 행동 패턴 분석 연구 계획서</p>
-    </header>
-
-    <!-- 연구 개요 섹션 -->
-    <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8">
-        <div class="flex items-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 class="text-2xl font-bold text-gray-100">1. 연구 배경 및 필요성</h2>
-        </div>
-        <p class="text-gray-300 leading-relaxed">
-            온라인 게임이 보편화되면서 플레이어 간의 <strong>비매너 행위</strong>는 게임의 재미를 저해하고 건강한 게임 생태계를 파괴하는 심각한 문제로 대두되었습니다. 현재 대부분의 게임사는 사후 신고 및 제재 시스템을 운영하지만, 이는 이미 발생한 문제를 해결하는 데 그치며 근본적인 예방에는 한계가 있습니다. 본 연구는 <strong>외적 요소</strong>와 <strong>비매너 행위</strong> 간의 <strong>상관관계</strong>를 분석하여, 잠재적인 비매너 행위자를 사전에 식별하고 예측하는 시스템 개발의 기초를 마련하고자 합니다.
-        </p>
-    </section>
-
-    <!-- 연구 목표 및 가설 섹션 -->
-    <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8">
-        <div class="flex items-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 012 .988l-.893 2.572a2 2 0 01-1.258 1.489H11M14 10a2 2 0 11-4 0m4 0a2 2 0 10-4 0m-3 8a2 2 0 10-4 0m4 0a2 2 0 11-4 0m-2 5a2 2 0 11-4 0" />
-            </svg>
-            <h2 class="text-2xl font-bold text-gray-100">2. 연구 목표 및 가설</h2>
-        </div>
-        <p class="text-gray-300 leading-relaxed mb-4">
-            본 연구의 궁극적인 목표는 게임 내 <strong>외적 요소</strong>와 플레이어의 <strong>비매너 행위</strong> 발생 확률 사이의 상관관계를 통계적으로 분석하고, 이를 기반으로 예측 모델의 개발 가능성을 탐색하는 것입니다.
-        </p>
-        <h3 class="text-xl font-semibold text-gray-100 mb-2">주요 가설:</h3>
-        <ul class="list-disc list-inside space-y-2 text-gray-400">
-            <li><strong>가설 1 (시각적 요소):</strong> 특정 캐릭터 스킨이나 과시적 성격이 강한 장비는 플레이어의 공격적이고 충동적인 행동과 유의미한 상관관계를 가질 것이다.</li>
-            <li><strong>가설 2 (플레이 시간 및 패턴):</strong> 특정 시간대(예: 심야 시간)나 누적 플레이 시간이 많은 유저는 비매너 행위 빈도와 관련이 있을 것이다.</li>
-            <li><strong>가설 3 (게임 내 성취):</strong> 랭크 티어가 낮은 플레이어일수록 팀워크를 무시하거나 고의적으로 패배를 유도하는 비매너 행위의 경향성이 높을 것이다. 반면, 상위 랭크의 플레이어는 팀 승리에 대한 압박감으로 인해 언어 폭력적인 비매너를 더 많이 보일 수 있다.</li>
-        </ul>
-    </section>
-
-    <!-- 연구 내용 및 방법 섹션 -->
-    <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8">
-        <div class="flex items-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.835 5.864 9.387 5.765 8 6.253v13m4-13c1.165-.389 2.613-.29 4 .253v13m-4-13h-4m4 0h4m-9 1a.997.997 0 01-1 1H4a1 1 0 01-1-1v-1a1 1 0 011-1h2a1 1 0 011 1v1zm-2 5h-2a1 1 0 01-1-1v-1a1 1 0 011-1h2a1 1 0 011 1v1zm8-5h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1zm-2 5a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1zm6 0a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1zm-2-5h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1z" />
-            </svg>
-            <h2 class="text-2xl font-bold text-gray-100">3. 연구 내용 및 방법</h2>
-        </div>
-        <p class="text-gray-300 leading-relaxed mb-4">
-            본 연구는 데이터 수집부터 분석, 모델링에 이르는 체계적인 과정을 통해 진행됩니다.
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- 데이터 수집 카드 -->
-            <div class="bg-gray-700 p-6 rounded-xl shadow-inner border border-gray-600">
-                <h3 class="text-xl font-semibold text-gray-100 mb-2">데이터 수집</h3>
-                <p class="text-gray-400 leading-relaxed mb-4">
-                    익명화된 플레이어 프로필 데이터와 게임 내 행동 데이터를 수집합니다.
-                </p>
-                <ul class="list-disc list-inside space-y-1 text-gray-400">
-                    <li><strong>플레이어 프로필:</strong> 랭크 티어, 레벨, 플레이 시간, 주력 캐릭터, 스킨 등</li>
-                    <li><strong>행동 데이터:</strong> 신고 기록, 채팅 로그, AFK, 고의적 피딩 등</li>
-                </ul>
-            </div>
-            <!-- 데이터 분석 및 모델링 카드 -->
-            <div class="bg-gray-700 p-6 rounded-xl shadow-xl shadow-inner border border-gray-600">
-                <h3 class="text-xl font-semibold text-gray-100 mb-2">분석 및 모델링</h3>
-                <p class="text-gray-400 leading-relaxed mb-4">
-                    수집된 데이터를 통계적으로 분석하고 머신러닝 모델을 구축합니다.
-                </p>
-                <ul class="list-disc list-inside space-y-1 text-gray-400">
-                    <li><strong>분석 방법:</strong> 카이제곱 검정, 다중 로지스틱 회귀 분석 등</li>
-                    <li><strong>모델 구축:</strong> 로지스틱 회귀, 랜덤 포레스트, 신경망 등</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- 기대 효과 및 활용 방안 섹션 -->
-    <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8">
-        <div class="flex items-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <h2 class="text-2xl font-bold text-gray-100">4. 기대 효과 및 활용 방안</h2>
-        </div>
-        <p class="text-gray-300 leading-relaxed mb-4">
-            본 연구의 결과는 게임 커뮤니티의 건전성을 크게 향상시킬 것입니다.
-        </p>
-        <ul class="space-y-4 text-gray-300">
-            <li class="flex items-start">
-                <span class="text-blue-400 font-bold mr-2 text-2xl">✓</span>
-                <div>
-                    <h3 class="font-semibold text-gray-100">비매너 행위 사전 예방</h3>
-                    <p class="text-sm text-gray-400">잠재적 비매너 행위자를 사전에 예측하여 매칭 시스템에서 분리하거나 경고 메시지를 보내는 등 예방적 조치를 취할 수 있습니다.</p>
-                </div>
-            </li>
-            <li class="flex items-start">
-                <span class="text-blue-400 font-bold mr-2 text-2xl">✓</span>
-                <div>
-                    <h3 class="font-semibold text-gray-100">효율적인 운영 시스템</h3>
-                    <p class="text-sm text-gray-400">AI 기반의 자동화된 예측 시스템은 운영진의 수동적인 감시 업무를 줄여 운영 효율성을 극대화합니다.</p>
-                </div>
-            </li>
-            <li class="flex items-start">
-                <span class="text-blue-400 font-bold mr-2 text-2xl">✓</span>
-                <div>
-                    <h3 class="font-semibold text-gray-100">게임 디자인 개선</h3>
-                    <p class="text-sm text-gray-400">어떤 요소가 플레이어의 공격성을 유발하는지 파악하여, 보다 긍정적인 행동을 유도하는 게임 디자인 방향을 제시할 수 있습니다.</p>
-                </div>
-            </li>
-        </ul>
-    </section>
-</div>
-
-<!-- 학생 조 편성기 섹션 -->
-<div class="content-section mx-auto hidden" id="team-generator-view">
-    <h1 class="text-4xl font-bold text-center mb-8 text-blue-400">👨‍👩‍👧‍👦 학생 조 편성기</h1>
-    <div class="input-group mb-6">
-        <label for="students" class="block mb-2 text-gray-300">학생 이름 (쉼표로 구분):</label>
-        <input type="text" id="students" class="w-full" placeholder="예: Alice, Bob, Charlie">
-    </div>
-
-    <div class="input-group mb-6">
-        <label for="group-size" class="block mb-2 text-gray-300">한 조의 인원수:</label>
-        <input type="number" id="group-size" class="w-full" value="3" min="1">
-    </div>
-    
-    <div id="preferences-container" class="mb-6">
-        <!-- 선호도 입력 UI가 동적으로 추가될 위치 -->
-    </div>
-
-    <button id="generate-button" class="w-full">조 편성하기</button>
-
-    <div class="result-container" id="result-container" style="display: none;">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-100">✅ 편성 결과</h2>
-        <ul class="team-list" id="team-results"></ul>
-    </div>
-</div>
-
-<!-- 1인용 첸토 게임 섹션 -->
-<div class="content-section mx-auto hidden" id="cento-game-view">
-    <h1 class="text-4xl font-bold text-center mb-4 text-blue-400">🃏 1인용 첸토 게임</h1>
-    <div class="text-center mb-6">
-        <p class="text-lg font-semibold text-gray-300">
-            1부터 100까지의 카드를 오름차순으로 10개의 보드 칸에 모두 채워 넣는 게임입니다.
-            <br>카드를 한 장씩 뽑아 배치하거나 저장하여 다음 기회를 노릴 수 있습니다.
-            <br>최대한 적은 턴으로 모든 카드를 완성하는 것이 목표입니다.
-        </p>
-        <p id="game-rules" class="text-left mt-4 text-gray-400 text-sm">
-            <strong class="text-blue-300">게임 규칙:</strong>
-            <ul class="list-disc list-inside mt-2 space-y-1">
-                <li>게임 시작: 게임 시작 시 덱에서 2장의 카드를 뽑아 보드에 직접 배치합니다.</li>
-                <li>카드 배치: 뽑은 카드를 비어있는 보드 칸에 놓습니다. 보드에 있는 카드들은 항상 오름차순을 유지해야 합니다. (예: `50` 옆에 `40`을 놓을 수 없습니다.)</li>
-                <li>카드 저장: 뽑은 카드를 따로 저장해두고 다음 턴에 다시 사용하거나, 필요 없어지면 버릴 수 있습니다. 저장된 카드는 턴을 사용하지 않습니다.</li>
-                <li>저장 카드 배치: 저장해둔 카드를 보드의 빈칸에 배치합니다. 이 행동은 턴을 사용하지 않습니다.</li>
-                <li>카드 교환: 보드에 있는 카드 2장의 위치를 교환할 수 있습니다. 이미 카드가 있는 칸뿐만 아니라, 빈칸과도 교환이 가능합니다. 이 행동은 턴을 사용합니다.</li>
-                <li>연속 숫자 보너스: 카드를 배치하거나 교환한 후, 그 카드가 주변(왼쪽 또는 오른쪽)의 카드와 연속하는 숫자일 경우(예: `50` 옆에 `49` 또는 `51`을 놓는 경우), 추가 턴을 얻어 다시 한 번 행동을 수행할 수 있습니다.</li>
-            </ul>
-        </p>
-    </div>
-    <p id="turn-counter" class="text-xl font-bold text-gray-400 mt-2 text-center">현재 턴: 0</p>
-    <p id="game-message" class="text-center text-lg font-bold text-gray-300 mb-4"></p>
-    
-    <div id="drawn-cards-container" class="flex justify-center space-x-4 mb-4" style="display: none;">
-        <div id="drawn-card-1" class="card"></div>
-        <div id="drawn-card-2" class="card"></div>
-    </div>
-    
-    <div id="action-buttons" class="flex flex-wrap justify-center space-x-2 sm:space-x-4 mb-4" style="display: none;">
-        <button id="place-card-btn" class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg">카드 배치하기</button>
-        <button id="save-card-btn" class="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg">카드 저장하기</button>
-        <button id="place-saved-btn" class="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg">저장 카드 배치</button>
-        <button id="swap-cards-btn" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg">카드 위치 교환</button>
-    </div>
-    
-    <div id="game-board-container" class="mb-6">
-        <div id="game-board" class="card-grid">
-            <!-- 카드들이 여기에 동적으로 생성됩니다 -->
-        </div>
-    </div>
-    
-    <button id="draw-card-btn" class="flex-1" style="display: none;">카드 뽑기</button>
-    <button id="start-game-btn" class="flex-1">게임 시작</button>
-    <button id="restart-game-btn" class="flex-1 mt-4" style="display: none;">게임 재시작</button>
-
-    <div id="saved-cards-container" class="mt-8">
-        <h2 class="text-xl font-bold text-gray-300 mb-2 text-center">저장된 카드</h2>
-        <div id="saved-cards-grid" class="saved-card-container">
-            <!-- 저장된 카드들이 여기에 나타납니다 -->
-        </div>
-    </div>
-</div>
-
-<script>
-    /**
-     * 탭을 전환하고 활성화된 탭을 표시합니다.
-     * @param {string} tabName - 'research', 'generator' 또는 'cento'
-     */
-    function showTab(tabName) {
-        const researchView = document.getElementById('research-plan-view');
-        const generatorView = document.getElementById('team-generator-view');
-        const centoView = document.getElementById('cento-game-view');
-        
-        const researchButton = document.querySelector('.tab-button:nth-child(1)');
-        const generatorButton = document.querySelector('.tab-button:nth-child(2)');
-        const centoButton = document.querySelector('.tab-button:nth-child(3)');
-
-        researchView.classList.add('hidden');
-        generatorView.classList.add('hidden');
-        centoView.classList.add('hidden');
-        researchButton.classList.remove('active');
-        generatorButton.classList.remove('active');
-        centoButton.classList.remove('active');
-
-        switch (tabName) {
-            case 'research':
-                researchView.classList.remove('hidden');
-                researchButton.classList.add('active');
-                break;
-            case 'generator':
-                generatorView.classList.remove('hidden');
-                generatorButton.classList.add('active');
-                break;
-            case 'cento':
-                centoView.classList.remove('hidden');
-                centoButton.classList.add('active');
-                break;
-        }
-    }
-
-    /**
-     * 학생 이름 배열을 기반으로 선호도 입력 UI를 동적으로 생성합니다.
-     */
-    function renderPreferenceInputs(students) {
-        const container = document.getElementById('preferences-container');
-        container.innerHTML = '';
-        
-        students.forEach(student => {
-            const groupDiv = document.createElement('div');
-            groupDiv.className = 'preference-group';
-            
-            const label = document.createElement('h3');
-            label.className = 'text-blue-300';
-            label.textContent = `${student}의 선호도 (1-10):`;
-            
-            const inputsDiv = document.createElement('div');
-            inputsDiv.className = 'preference-inputs';
-
-            // 모든 학생을 옵션으로 추가 (자기 자신 제외)
-            students.filter(s => s !== student).forEach(optionStudent => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'preference-item';
-                
-                const itemLabel = document.createElement('label');
-                itemLabel.textContent = optionStudent;
-
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.min = '1';
-                input.max = '10';
-                input.value = '5'; // 기본값 설정 (중립)
-                input.setAttribute('data-student', student);
-                input.setAttribute('data-for-student', optionStudent);
-                
-                itemDiv.appendChild(itemLabel);
-                inputsDiv.appendChild(itemDiv);
-            });
-            
-            groupDiv.appendChild(label);
-            groupDiv.appendChild(inputsDiv);
-            container.appendChild(groupDiv);
-        });
-    }
-
-    /**
-     * 선호도 점수를 고려하여 학생들을 조로 편성합니다.
-     * @param {string[]} students - 학생 이름 배열
-     * @param {number} groupSize - 한 조의 인원수
-     * @param {Object} preferences - { 학생: { 다른학생: 점수 } } 형태의 객체
-     */
-    function createTeamsWithPreferences(students, groupSize, preferences) {
-        let remainingStudents = [...students];
-        const teams = [];
-        
-        // 무작위로 학생들을 섞습니다.
-        remainingStudents.sort(() => Math.random() - 0.5);
-
-        while (remainingStudents.length > 0) {
-            const currentTeam = [];
-            const firstMember = remainingStudents.shift();
-            currentTeam.push(firstMember);
-
-            while (currentTeam.length < groupSize && remainingStudents.length > 0) {
-                let bestMatch = null;
-                let highestScore = -1;
-                
-                // 남은 학생들 중 현재 조와 가장 높은 점수를 가진 학생을 찾습니다.
-                remainingStudents.forEach(student => {
-                    let compatibilityScore = 0;
-                    
-                    // 현재 조원들이 이 학생에게 준 점수 합산
-                    currentTeam.forEach(member => {
-                        compatibilityScore += preferences[member][student] || 0;
-                    });
-
-                    // 이 학생이 현재 조원들에게 준 점수 합산
-                    compatibilityScore += preferences[student][currentTeam[0]] || 0;
-                    
-                    // 최고 점수 갱신
-                    if (compatibilityScore > highestScore) {
-                        highestScore = compatibilityScore;
-                        bestMatch = student;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-sky': '#0ea5e9', /* sky-500 */
+                        'accent-amber': '#fbbf24', /* amber-400 */
+                        'dark-bg': '#1e293b', /* slate-800 for sidebar and dark sections */
+                        'dark-card': '#334155', /* slate-700 */
                     }
-                });
-
-                if (bestMatch && highestScore > 0) {
-                    // 점수가 높은 학생을 조에 추가
-                    currentTeam.push(bestMatch);
-                    remainingStudents = remainingStudents.filter(s => s !== bestMatch);
-                } else {
-                    // 선호도가 0이거나 없는 경우, 무작위로 선택
-                    const randomIndex = Math.floor(Math.random() * remainingStudents.length);
-                    const randomMember = remainingStudents.splice(randomIndex, 1)[0];
-                    currentTeam.push(randomMember);
                 }
             }
-            teams.push(currentTeam);
-        }
-        return teams;
-    }
-
-    // 학생 이름 입력 필드에 이벤트 리스너 추가
-    document.getElementById('students').addEventListener('input', (e) => {
-        const studentsInput = e.target.value;
-        const students = studentsInput.split(',').map(s => s.trim()).filter(s => s);
-        renderPreferenceInputs(students);
-    });
-
-    document.getElementById('generate-button').addEventListener('click', () => {
-        const studentsInput = document.getElementById('students').value;
-        const students = studentsInput.split(',').map(s => s.trim()).filter(s => s);
-        
-        const groupSize = parseInt(document.getElementById('group-size').value, 10);
-        if (isNaN(groupSize) || groupSize <= 0) {
-            console.error('유효한 조 인원수를 입력해주세요.');
-            return;
         }
 
-        const preferences = {};
-        students.forEach(student => {
-            preferences[student] = {};
-        });
-
-        document.querySelectorAll('.preference-inputs input').forEach(input => {
-            const student = input.getAttribute('data-student');
-            const forStudent = input.getAttribute('data-for-student');
-            const score = parseInt(input.value, 10) || 0;
-            if (score >= 1 && score <= 10) {
-                    preferences[student][forStudent] = score;
-            }
-        });
-
-        // 조 편성 함수 실행
-        const teams = createTeamsWithPreferences(students, groupSize, preferences);
-
-        // 결과 표시
-        const teamResultsList = document.getElementById('team-results');
-        teamResultsList.innerHTML = '';
-        if (teams.length > 0) {
-            teams.forEach((team, index) => {
-                const teamItem = document.createElement('li');
-                teamItem.className = 'team-item';
-                teamItem.textContent = `Team ${index + 1}: ${team.join(', ')}`;
-                teamResultsList.appendChild(teamItem);
+        // 전체 컨텐츠를 토글하고 원하는 컨텐츠만 표시하는 함수
+        function showContent(contentId) {
+            // 모든 컨텐츠 섹션 숨기기
+            const contents = document.querySelectorAll('.content-section');
+            contents.forEach(content => {
+                content.style.display = 'none';
             });
-            document.getElementById('result-container').style.display = 'block';
-        } else {
-            teamResultsList.innerHTML = '<p class="text-gray-400">편성할 학생이 없습니다.</p>';
-            document.getElementById('result-container').style.display = 'block';
-        }
-    });
 
-    // 첸토 게임 로직
-    const gameBoardElement = document.getElementById('game-board');
-    const drawnCardsContainer = document.getElementById('drawn-cards-container');
-    const drawnCard1 = document.getElementById('drawn-card-1');
-    const drawnCard2 = document.getElementById('drawn-card-2');
-    const savedCardsGrid = document.getElementById('saved-cards-grid');
-    const gameMessage = document.getElementById('game-message');
-    const turnCounterElement = document.getElementById('turn-counter');
-    const actionButtons = document.getElementById('action-buttons');
-    const drawCardBtn = document.getElementById('draw-card-btn');
-    const startGameBtn = document.getElementById('start-game-btn');
-    const restartGameBtn = document.getElementById('restart-game-btn');
-    const placeCardBtn = document.getElementById('place-card-btn');
-    const saveCardBtn = document.getElementById('save-card-btn');
-    const placeSavedBtn = document.getElementById('place-saved-btn');
-    const swapCardsBtn = document.getElementById('swap-cards-btn');
+            // 선택된 컨텐츠 섹션 표시
+            const targetContent = document.getElementById(contentId);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
 
-    let deck = [];
-    let board = [];
-    let savedCards = [];
-    let turn = 0;
-    let state = 'initial';
-    let drawnCards = [];
-    let selectedSavedCard = null;
-    let selectedSavedCardIndex = null;
-    let selectedBoardCards = [];
-    let selectedDrawnCard = null;
+            // 내비게이션 버튼 활성/비활성 상태 업데이트
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                if (button.getAttribute('data-target') === contentId) {
+                    button.classList.add('nav-active');
+                    button.classList.remove('text-gray-300', 'hover:bg-sky-700');
+                } else {
+                    button.classList.remove('nav-active');
+                    button.classList.add('text-gray-300', 'hover:bg-sky-700');
+                }
+            });
 
-    /**
-     * 게임 보드를 렌더링합니다.
-     */
-    function renderBoard() {
-        gameBoardElement.innerHTML = '';
-        for (let i = 0; i < 10; i++) {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = `card ${board[i] !== null ? 'is-set' : 'is-placeholder'}`;
-            cardDiv.textContent = board[i] !== null ? board[i] : '?';
-            cardDiv.dataset.index = i;
-            gameBoardElement.appendChild(cardDiv);
-        }
-        updateBoardClickListeners();
-    }
-
-    /**
-     * 저장된 카드 목록을 렌더링합니다.
-     */
-    function renderSavedCards() {
-        savedCardsGrid.innerHTML = '';
-        savedCards.forEach((card, index) => {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = `saved-card`;
-            cardDiv.textContent = card;
-            cardDiv.dataset.index = index;
-            savedCardsGrid.appendChild(cardDiv);
-        });
-        updateSavedCardsClickListeners();
-    }
-
-    /**
-     * 게임을 초기화합니다.
-     */
-    function initializeGame() {
-        // 덱을 1부터 100까지의 숫자로 초기화하고 섞습니다.
-        deck = Array.from({ length: 100 }, (_, i) => i + 1);
-        deck.sort(() => Math.random() - 0.5);
-        
-        // 보드와 저장된 카드들을 초기화합니다.
-        board = new Array(10).fill(null);
-        savedCards = [];
-        turn = 0;
-        
-        // 초기 상태 설정
-        state = 'initial';
-        gameMessage.textContent = '덱에서 카드를 뽑고 있습니다...';
-        drawCardBtn.style.display = 'none';
-        startGameBtn.style.display = 'none';
-        restartGameBtn.style.display = 'block';
-        actionButtons.style.display = 'none';
-        drawnCardsContainer.style.display = 'none';
-
-        renderBoard();
-        renderSavedCards();
-        
-        // 게임 시작 시 카드 2장 뽑고 보드에 배치
-        drawAndPlaceInitialCards();
-    }
-
-    /**
-     * 게임 시작 시 첫 두 장의 카드를 뽑고 보드에 배치합니다.
-     */
-    function drawAndPlaceInitialCards() {
-        if (deck.length >= 2) {
-            drawnCards = [deck.shift(), deck.shift()];
-            drawnCard1.textContent = drawnCards[0];
-            drawnCard2.textContent = drawnCards[1];
+            // 첸토 게임 초기화 (다른 탭으로 이동 시 게임 상태 리셋)
+            if (contentId !== 'content-cento' && typeof resetCentoGame === 'function') {
+                resetCentoGame();
+            }
             
-            drawnCardsContainer.style.display = 'flex';
+            // 화면을 최상단으로 스크롤
+            document.getElementById('content-area').scrollTop = 0;
+        }
+
+        // -------------------------------------------
+        // [추가된 JS] 학생 조 편성기 로직
+        // -------------------------------------------
+        function generateTeams() {
+            const studentsInput = document.getElementById('students');
+            const groupSizeInput = document.getElementById('group-size');
+            const resultContainer = document.getElementById('result-container');
+            const teamResults = document.getElementById('team-results');
             
-            gameMessage.textContent = `뽑은 카드: ${drawnCards[0]}, ${drawnCards[1]}. 두 카드 중 하나를 선택하여 보드에 배치하세요.`;
-            state = 'placing_initial_1';
+            const students = studentsInput.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            const groupSize = parseInt(groupSizeInput.value, 10);
+
+            teamResults.innerHTML = '';
+            resultContainer.style.display = 'none';
+
+            if (students.length === 0 || isNaN(groupSize) || groupSize < 1) {
+                teamResults.innerHTML = '<li class="text-red-400">학생 이름과 유효한 인원수를 입력해 주세요.</li>';
+                resultContainer.style.display = 'block';
+                return;
+            }
+
+            // 학생 섞기
+            for (let i = students.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [students[i], students[j]] = [students[j], students[i]];
+            }
+
+            const numGroups = Math.ceil(students.length / groupSize);
+            const teams = Array.from({ length: numGroups }, () => []);
+
+            // 팀에 학생 분배
+            students.forEach((student, index) => {
+                const teamIndex = index % numGroups;
+                teams[teamIndex].push(student);
+            });
+
+            // 결과 표시
+            teams.forEach((team, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'team-result-item mb-2';
+                listItem.innerHTML = `<span class="font-bold text-primary-sky">Team ${index + 1} (${team.length}명):</span> ${team.join(', ')}`;
+                teamResults.appendChild(listItem);
+            });
+
+            resultContainer.style.display = 'block';
+        }
+
+        // -------------------------------------------
+        // [추가된 JS] 첸토 게임 로직 (Cento Game)
+        // -------------------------------------------
+        const BOARD_SIZE = 10;
+        const DECK_SIZE = 100;
+        let deck = [];
+        let board = [];
+        let savedCards = [];
+        let drawnCard = null;
+        let turn = 0;
+        let state = 'waiting'; // waiting, playing, placing, saving, swapping_1, swapping_2
+
+        let gameBoardElement;
+        let savedCardsGrid;
+        let drawnCardsContainer;
+        let gameMessage;
+        let turnCounter;
+        let drawnCardElement;
+        let placeCardBtn, saveCardBtn, placeSavedBtn, swapCardsBtn, drawCardBtn, startGameBtn, restartGameBtn;
+        let selectedBoardCards = []; // for swapping
+
+        function getGameElements() {
+            gameBoardElement = document.getElementById('game-board');
+            savedCardsGrid = document.getElementById('saved-cards-grid');
+            drawnCardsContainer = document.getElementById('drawn-cards-container');
+            gameMessage = document.getElementById('game-message');
+            turnCounter = document.getElementById('turn-counter');
             
-            // 초기 카드 선택 리스너 추가
-            drawnCard1.addEventListener('click', () => selectDrawnCard(0));
-            drawnCard2.addEventListener('click', () => selectDrawnCard(1));
-        } else {
-            gameMessage.textContent = '덱에 카드가 부족하여 게임을 시작할 수 없습니다.';
-        }
-    }
-    
-    /**
-     * 뽑은 카드 중 하나를 선택합니다.
-     * @param {number} index - 선택된 카드의 인덱스 (0 또는 1)
-     */
-    function selectDrawnCard(index) {
-        selectedDrawnCard = drawnCards[index];
-        gameMessage.textContent = `${selectedDrawnCard} 카드를 배치할 보드 위치를 선택하세요.`;
-        state = 'placing_initial_2';
-        drawnCard1.classList.remove('selected');
-        drawnCard2.classList.remove('selected');
-        if (index === 0) {
-            drawnCard1.classList.add('selected');
-        } else {
-            drawnCard2.classList.add('selected');
-        }
-        updateBoardClickListeners();
-    }
+            const drawnCard1 = document.getElementById('drawn-card-1'); // Only need one drawn card in this implementation
+            drawnCardElement = drawnCard1; 
 
+            placeCardBtn = document.getElementById('place-card-btn');
+            saveCardBtn = document.getElementById('save-card-btn');
+            placeSavedBtn = document.getElementById('place-saved-btn');
+            swapCardsBtn = document.getElementById('swap-cards-btn');
+            drawCardBtn = document.getElementById('draw-card-btn');
+            startGameBtn = document.getElementById('start-game-btn');
+            restartGameBtn = document.getElementById('restart-game-btn');
 
-    /**
-     * 턴 수를 업데이트합니다.
-     */
-    function updateTurnCounter() {
-        turnCounterElement.textContent = `현재 턴: ${turn}`;
-    }
-    
-    /**
-     * 연속하는 숫자가 있는지 확인합니다.
-     * @param {number} index - 방금 카드를 놓은 위치
-     * @param {number} cardValue - 놓은 카드의 값
-     * @returns {boolean} - 연속하는 숫자가 있으면 true
-     */
-    function checkForConsecutiveNumbers(index, cardValue) {
-        let isConsecutive = false;
-        // 왼쪽 카드 확인
-        if (index > 0 && board[index - 1] !== null && (board[index - 1] === cardValue - 1 || board[index - 1] === cardValue + 1)) {
-            isConsecutive = true;
+            if (startGameBtn) {
+                startGameBtn.addEventListener('click', initializeGame);
+                restartGameBtn.addEventListener('click', resetCentoGame);
+                drawCardBtn.addEventListener('click', handleDrawCard);
+                placeCardBtn.addEventListener('click', handlePlaceCard);
+                saveCardBtn.addEventListener('click', handleSaveCard);
+                placeSavedBtn.addEventListener('click', handlePlaceSaved);
+                swapCardsBtn.addEventListener('click', handleSwapCards);
+            }
         }
-        // 오른쪽 카드 확인
-        if (index < board.length - 1 && board[index + 1] !== null && (board[index + 1] === cardValue - 1 || board[index + 1] === cardValue + 1)) {
-            isConsecutive = true;
-        }
-        return isConsecutive;
-    }
 
-    /**
-     * 턴을 진행합니다.
-     * @param {number} index - 카드를 배치한 위치
-     * @param {number} value - 카드의 값
-     */
-    function advanceTurn(index, value) {
-        if (checkForConsecutiveNumbers(index, value)) {
-            gameMessage.textContent = '🎉 연속하는 숫자를 만들었습니다! 보너스 턴을 얻었습니다!';
-        } else {
+        function initializeGame() {
+            getGameElements(); // Ensure elements are fetched
+            deck = Array.from({ length: DECK_SIZE }, (_, i) => i + 1);
+            // Deck 섞기
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            board = Array(BOARD_SIZE).fill(null);
+            savedCards = [];
+            drawnCard = null;
+            turn = 0;
+            state = 'playing';
+            selectedBoardCards = [];
+
+            updateTurnCounter();
+            renderBoard();
+            renderSavedCards();
+            
+            startGameBtn.style.display = 'none';
+            restartGameBtn.style.display = 'block';
+            drawnCardsContainer.style.display = 'none';
+            gameMessage.textContent = '게임을 시작합니다. 첫 2장의 카드를 뽑아 배치하세요.';
+            
+            // 첫 턴 시작 (2장 배치)
+            handleInitialDraw();
+        }
+
+        function handleInitialDraw() {
+            if (deck.length >= 2) {
+                drawnCard = [deck.pop(), deck.pop()]; // drawnCard를 배열로 변경
+            } else {
+                gameMessage.textContent = '덱에 카드가 부족합니다!';
+                return;
+            }
+
+            // 상태를 배치 상태로 변경
+            state = 'placing_initial'; 
+            gameMessage.textContent = `2장의 카드(${drawnCard.join(', ')})를 보드에 배치해야 합니다.`;
+            
+            renderDrawnCard(drawnCard);
+            drawCardBtn.style.display = 'none';
+            placeCardBtn.style.display = 'none'; // 초기 배치는 바로 배치 모드로 들어감
+            saveCardBtn.style.display = 'none';
+            placeSavedBtn.style.display = 'none';
+            swapCardsBtn.style.display = 'none';
+            
+            updateBoardClickListeners();
+        }
+
+        function handleDrawCard() {
+            if (state !== 'playing' || drawnCard) return;
+
             turn++;
             updateTurnCounter();
-        }
-    }
 
-    /**
-     * 게임 보드 클릭 리스너를 업데이트합니다.
-     */
-    function updateBoardClickListeners() {
-        document.querySelectorAll('#game-board .card').forEach(card => {
-            card.removeEventListener('click', handleBoardClick);
-            card.addEventListener('click', handleBoardClick);
-            card.classList.remove('selected');
-        });
-    }
-
-    /**
-     * 저장된 카드 클릭 리스너를 업데이트합니다.
-     */
-    function updateSavedCardsClickListeners() {
-        document.querySelectorAll('#saved-cards-grid .saved-card').forEach(card => {
-            card.removeEventListener('click', handleSavedCardClick);
-            card.addEventListener('click', handleSavedCardClick);
-        });
-    }
-
-    /**
-     * 보드 클릭을 처리합니다.
-     */
-    function handleBoardClick(e) {
-        const index = parseInt(e.target.dataset.index);
-
-        if (state === 'placing_initial_2') {
-             if (board[index] === null) {
-                board[index] = selectedDrawnCard;
-                drawnCards = drawnCards.filter(card => card !== selectedDrawnCard);
-                selectedDrawnCard = null;
-                
-                // 남은 카드가 있으면 다음 배치 단계로 이동
-                if (drawnCards.length > 0) {
-                    gameMessage.textContent = `남은 카드: ${drawnCards[0]}. 이 카드를 배치할 보드 위치를 선택하세요.`;
-                    selectedDrawnCard = drawnCards[0];
-                    drawnCardsContainer.style.display = 'flex';
-                    drawnCard1.textContent = drawnCards[0];
-                    drawnCard2.textContent = '';
-                    drawnCard1.classList.add('selected');
-                    drawnCard2.classList.remove('selected');
-                } else {
-                    drawnCardsContainer.style.display = 'none';
-                    state = 'initial';
-                    checkWinCondition();
-                }
-                
-                renderBoard();
+            if (deck.length > 0) {
+                drawnCard = [deck.pop()];
+                gameMessage.textContent = `카드 ${drawnCard[0]}을(를) 뽑았습니다. 배치하거나 저장하세요.`;
             } else {
-                gameMessage.textContent = '이미 카드가 있는 위치입니다. 다른 곳을 선택하세요.';
+                gameMessage.textContent = '덱이 비었습니다! 저장된 카드를 사용하거나 게임을 종료하세요.';
             }
-        } else if (state === 'placing') {
-            const cardValue = drawnCards[0];
-            if (board[index] === null) {
-                board[index] = drawnCards.shift();
-                drawnCardsContainer.style.display = 'none';
-                renderBoard();
-                advanceTurn(index, cardValue);
-                checkWinCondition();
-            } else {
-                gameMessage.textContent = '이미 카드가 있는 위치입니다. 다른 곳을 선택하세요.';
-            }
-        } else if (state === 'placing_saved') {
-             const cardValue = selectedSavedCard;
-             if (board[index] === null) {
-                board[index] = selectedSavedCard;
-                savedCards.splice(selectedSavedCardIndex, 1);
-                selectedSavedCard = null;
-                selectedSavedCardIndex = null;
-                renderBoard();
-                renderSavedCards();
-                advanceTurn(index, cardValue);
-                checkWinCondition();
-            } else {
-                gameMessage.textContent = '이미 카드가 있는 위치입니다. 다른 곳을 선택하세요.';
-            }
-        } else if (state === 'swapping_1') {
-            selectedBoardCards.push(index);
-            e.target.classList.add('selected');
-            state = 'swapping_2';
-            gameMessage.textContent = '교환할 두 번째 칸을 선택하세요.';
-        } else if (state === 'swapping_2') {
-            if (selectedBoardCards[0] !== index) {
-                selectedBoardCards.push(index);
-                
-                const [idx1, idx2] = selectedBoardCards;
-                const temp = board[idx1];
-                board[idx1] = board[idx2];
-                board[idx2] = temp;
-                
-                // 교환 후 연속 숫자 확인
-                if (temp !== null) { // 첫 번째 카드가 존재했는지 확인
-                    advanceTurn(idx1, temp);
-                } else if (board[idx1] !== null) { // 두 번째 카드가 존재했는지 확인
-                    advanceTurn(idx1, board[idx1]);
-                } else {
-                    turn++;
-                    updateTurnCounter();
-                }
-                
-                selectedBoardCards = [];
-                renderBoard();
-                checkWinCondition();
-            } else {
-                gameMessage.textContent = '같은 위치는 선택할 수 없습니다. 다시 선택하세요.';
-            }
-        }
-    }
 
-    /**
-     * 저장된 카드 클릭을 처리합니다.
-     */
-    function handleSavedCardClick(e) {
-        if (state === 'placing_saved_select') {
-            selectedSavedCardIndex = parseInt(e.target.dataset.index);
-            selectedSavedCard = savedCards[selectedSavedCardIndex];
-            state = 'placing_saved';
-            gameMessage.textContent = `선택한 카드 ${selectedSavedCard}를 배치할 위치를 선택하세요.`;
-            placeSavedBtn.style.display = 'none';
-            swapCardsBtn.style.display = 'none';
-            updateSavedCardsClickListeners();
-        }
-    }
-
-    /**
-     * 승리 조건을 확인하고 다음 턴 버튼들을 활성화합니다.
-     */
-    function checkWinCondition() {
-        let isSorted = true;
-        let isFull = true;
-        for (let i = 0; i < 10; i++) {
-            if (board[i] === null) {
-                isFull = false;
-            }
-            if (i > 0 && board[i] !== null && board[i - 1] !== null && board[i] < board[i - 1]) {
-                isSorted = false;
-                break;
-            }
-        }
-        
-        if (isFull && isSorted) {
-            gameMessage.textContent = `🎉 모든 카드가 오름차순으로 정렬되었습니다! ${turn}턴만에 승리했습니다!`;
+            renderDrawnCard(drawnCard);
             drawCardBtn.style.display = 'none';
-            actionButtons.style.display = 'none';
-        } else if (deck.length === 0 && savedCards.length === 0 && !isFull) {
-            gameMessage.textContent = `게임 오버! 덱과 저장된 카드가 모두 떨어졌습니다. ㅠㅠ`;
-            drawCardBtn.style.display = 'none';
-            actionButtons.style.display = 'none';
-        } else {
-            gameMessage.textContent = '카드를 뽑거나 다른 행동을 선택하세요.';
-            drawCardBtn.style.display = 'block';
-            actionButtons.style.display = 'flex';
+            placeCardBtn.style.display = 'inline-block';
+            saveCardBtn.style.display = 'inline-block';
+            placeSavedBtn.style.display = savedCards.length > 0 ? 'inline-block' : 'none';
+            swapCardsBtn.style.display = 'inline-block';
+        }
+
+        function renderDrawnCard(cards) {
+            drawnCardsContainer.style.display = cards && cards.length > 0 ? 'flex' : 'none';
+            const container = document.getElementById('drawn-cards-container');
+            container.innerHTML = '';
+            
+            if (cards) {
+                cards.forEach((cardValue, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.id = `drawn-card-${index}`;
+                    cardElement.className = 'card-drawn shadow-xl';
+                    cardElement.textContent = cardValue;
+                    container.appendChild(cardElement);
+                });
+            }
+        }
+
+        function handlePlaceCard() {
+            if (state !== 'playing' || !drawnCard || drawnCard.length === 0) return;
+            state = 'placing';
+            gameMessage.textContent = `카드 ${drawnCard[0]}을(를) 놓을 보드 칸을 선택하세요.`;
+            
             placeCardBtn.style.display = 'none';
             saveCardBtn.style.display = 'none';
-            // 보드에 카드가 하나라도 있으면 교환 버튼 활성화
-            swapCardsBtn.style.display = 'block';
-            // 저장된 카드가 있으면 배치 버튼 활성화
-            if (savedCards.length > 0) {
-                placeSavedBtn.style.display = 'block';
-            } else {
-                placeSavedBtn.style.display = 'none';
-            }
-        }
-    }
-
-    /**
-     * '카드 뽑기' 버튼 클릭 핸들러
-     */
-    function handleDrawCard() {
-        if (deck.length > 0) {
-            drawnCards = [deck.shift()]; // 한 장만 뽑음
-            state = 'choosing_action';
-            drawnCardsContainer.style.display = 'flex';
-            drawnCard1.textContent = drawnCards[0];
-            drawnCard2.textContent = '';
-            gameMessage.textContent = '뽑은 카드를 배치하시겠습니까, 아니면 저장하시겠습니까?';
-            drawCardBtn.style.display = 'none';
-            actionButtons.style.display = 'flex';
-            placeCardBtn.style.display = 'block';
-            saveCardBtn.style.display = 'block';
             placeSavedBtn.style.display = 'none';
             swapCardsBtn.style.display = 'none';
-        } else {
-            gameMessage.textContent = '더 이상 뽑을 카드가 없습니다. 저장된 카드를 배치하거나, 카드 위치를 교환하세요.';
-            drawCardBtn.style.display = 'none';
-            checkWinCondition(); // 저장된 카드가 있을 경우 버튼 활성화
+            updateBoardClickListeners();
         }
-    }
 
-    /**
-     * '카드 배치하기' 버튼 클릭 핸들러
-     */
-    function handlePlaceCard() {
-        state = 'placing';
-        gameMessage.textContent = `새로 뽑은 카드 ${drawnCards[0]}를 배치할 위치를 선택하세요.`;
-        placeCardBtn.style.display = 'none';
-        saveCardBtn.style.display = 'none';
-        placeSavedBtn.style.display = 'none';
-        swapCardsBtn.style.display = 'none';
-        updateBoardClickListeners();
-    }
-
-    /**
-     * '카드 저장하기' 버튼 클릭 핸들러
-     */
-    function handleSaveCard() {
-        savedCards.push(drawnCards.shift());
-        drawnCardsContainer.style.display = 'none';
-        renderSavedCards();
-        turn++;
-        updateTurnCounter();
-        gameMessage.textContent = `새로운 카드 ${savedCards[savedCards.length - 1]}를 저장했습니다.`;
-        checkWinCondition();
-    }
-
-    /**
-     * '저장 카드 배치' 버튼 클릭 핸들러
-     */
-    function handlePlaceSaved() {
-        if (savedCards.length > 0) {
-            state = 'placing_saved_select';
-            gameMessage.textContent = '배치할 저장 카드를 선택하세요.';
-            drawCardBtn.style.display = 'none';
-            actionButtons.style.display = 'none';
-            updateSavedCardsClickListeners();
-        } else {
-            gameMessage.textContent = '저장된 카드가 없습니다.';
+        function handleSaveCard() {
+            if (state !== 'playing' || !drawnCard || drawnCard.length === 0) return;
+            
+            savedCards.push(drawnCard.shift()); // 첫 번째 카드 저장
+            drawnCard = drawnCard.length > 0 ? drawnCard : null; // 남은 카드가 없으면 null
+            
+            gameMessage.textContent = '카드를 저장했습니다. 다음 턴을 시작하세요.';
+            endAction();
         }
-    }
 
-    /**
-     * '카드 위치 교환' 버튼 클릭 핸들러
-     */
-    function handleSwapCards() {
-        state = 'swapping_1';
-        selectedBoardCards = [];
-        gameMessage.textContent = '교환할 첫 번째 카드를 선택하세요.';
-        drawCardBtn.style.display = 'none';
-        actionButtons.style.display = 'none';
-        updateBoardClickListeners();
-    }
+        function handlePlaceSaved() {
+            if (state !== 'playing' || savedCards.length === 0) return;
+            state = 'placing_saved';
+            gameMessage.textContent = '배치할 저장된 카드를 선택하세요.';
+            
+            placeCardBtn.style.display = 'none';
+            saveCardBtn.style.display = 'none';
+            placeSavedBtn.style.display = 'none';
+            swapCardsBtn.style.display = 'none';
+            
+            updateSavedCardClickListeners(true);
+        }
 
-    /**
-     * 게임 재시작 버튼 클릭 핸들러
-     */
-    function handleRestartGame() {
-        startGameBtn.style.display = 'block';
-        restartGameBtn.style.display = 'none';
-        drawCardBtn.style.display = 'none';
-        gameBoardElement.innerHTML = '';
-        savedCardsGrid.innerHTML = '';
-        drawnCardsContainer.style.display = 'none';
-        gameMessage.textContent = '게임 시작 버튼을 눌러주세요.';
-        turn = 0;
-        updateTurnCounter();
-        actionButtons.style.display = 'none';
-    }
+        function handleSwapCards() {
+            if (state !== 'playing') return;
+            state = 'swapping_1';
+            selectedBoardCards = [];
+            gameMessage.textContent = '교환할 첫 번째 보드 칸을 선택하세요.';
+            
+            placeCardBtn.style.display = 'none';
+            saveCardBtn.style.display = 'none';
+            placeSavedBtn.style.display = 'none';
+            swapCardsBtn.style.display = 'none';
 
-    // 이벤트 리스너
-    startGameBtn.addEventListener('click', initializeGame);
-    restartGameBtn.addEventListener('click', handleRestartGame);
-    drawCardBtn.addEventListener('click', handleDrawCard);
-    placeCardBtn.addEventListener('click', handlePlaceCard);
-    saveCardBtn.addEventListener('click', handleSaveCard);
-    placeSavedBtn.addEventListener('click', handlePlaceSaved);
-    swapCardsBtn.addEventListener('click', handleSwapCards);
+            // 교환은 턴을 소모하므로 바로 턴 증가
+            turn++;
+            updateTurnCounter(); 
+            updateBoardClickListeners();
+        }
 
-    // 초기화
-    document.addEventListener('DOMContentLoaded', () => {
-        showTab('research');
-        handleRestartGame();
-    });
-</script>
+        function checkWinCondition() {
+            if (board.every(cell => cell !== null && cell > 0)) {
+                gameMessage.textContent = `축하합니다! ${turn}턴 만에 모든 카드를 완성했습니다!`;
+                state = 'finished';
+                drawCardBtn.style.display = 'none';
+                actionButtons.style.display = 'none';
+                return true;
+            }
+            return false;
+        }
+        
+        function endAction(bonusTurn = false) {
+            // 초기 배치 단계가 아니며, 보너스 턴도 아닌 경우에만 턴 증가 (단, 이미 handleSwapCards에서 턴 증가를 했으므로, 배치/저장 완료 후에는 턴 증가 X)
+            if (state !== 'placing_initial' && !bonusTurn && state !== 'swapping_2' && state !== 'swapping_1' && state !== 'placing_saved') {
+                 // 일반적인 배치나 저장 로직이 아니므로 턴 소모 안함.
+                 // drawCard가 이미 턴을 소모했음
+            }
+            
+            state = 'playing';
+            
+            if (checkWinCondition()) return;
+            
+            renderDrawnCard(drawnCard);
+            renderBoard();
+            renderSavedCards();
+            
+            // 다음 행동 버튼 설정
+            drawCardBtn.style.display = drawnCard ? 'none' : 'inline-block';
+            placeCardBtn.style.display = drawnCard ? 'inline-block' : 'none';
+            saveCardBtn.style.display = drawnCard ? 'inline-block' : 'none';
+            placeSavedBtn.style.display = savedCards.length > 0 ? 'inline-block' : 'none';
+            swapCardsBtn.style.display = 'inline-block';
+            
+            // 만약 보너스 턴이면 다시 Draw 버튼 대신 행동 버튼 표시
+            if(bonusTurn) {
+                gameMessage.textContent = `연속 숫자 보너스! 추가 턴을 얻었습니다. 다시 행동을 선택하세요.`;
+                drawCardBtn.style.display = 'inline-block'; // 다시 뽑기 유도
+                placeCardBtn.style.display = drawnCard ? 'inline-block' : 'none';
+                saveCardBtn.style.display = drawnCard ? 'inline-block' : 'none';
+                placeSavedBtn.style.display = savedCards.length > 0 ? 'inline-block' : 'none';
+                swapCardsBtn.style.display = 'inline-block';
+            } else if (!drawnCard) {
+                gameMessage.textContent = '카드를 뽑거나 저장된 카드를 배치하거나, 위치를 교환하세요.';
+            } else if (drawnCard.length === 1) {
+                gameMessage.textContent = `카드 ${drawnCard[0]}을(를) 배치하거나 저장하세요.`;
+            } else if (drawnCard.length > 1) {
+                 gameMessage.textContent = `2장의 카드(${drawnCard.join(', ')})를 모두 배치해야 합니다.`;
+            }
+            
+            updateBoardClickListeners(); // 일반 클릭 리스너 재설정
+        }
+
+        // 보드에 카드 배치 및 유효성 검사
+        function placeCardOnBoard(cardValue, index, isInitialPlacement) {
+            // 유효성 검사
+            const left = board[index - 1];
+            const right = board[index + 1];
+
+            // 보드에 이미 카드가 있으면 안 됨 (교환 시에는 허용되지만, 여기는 배치 함수)
+            if (board[index] !== null) return false;
+
+            // 오름차순 검사
+            if (left !== null && cardValue < left) return false;
+            if (right !== null && cardValue > right) return false;
+            
+            // 성공적으로 배치
+            board[index] = cardValue;
+            
+            let bonusTurn = false;
+            if (!isInitialPlacement) {
+                // 연속 숫자 보너스 체크 (빈칸에는 적용 안 함)
+                const isContiguousLeft = (left !== null && (cardValue === left + 1 || cardValue === left - 1));
+                const isContiguousRight = (right !== null && (cardValue === right + 1 || cardValue === right - 1));
+                if (isContiguousLeft || isContiguousRight) {
+                    bonusTurn = true;
+                }
+            }
+
+            return bonusTurn;
+        }
+
+        // 보드 클릭 이벤트 핸들러
+        function handleBoardClick(event) {
+            const cardSlot = event.currentTarget;
+            const index = parseInt(cardSlot.dataset.index, 10);
+            
+            if (state === 'placing' || state === 'placing_saved') {
+                if (board[index] !== null) {
+                    gameMessage.textContent = '이미 카드가 있는 칸입니다. 다른 칸을 선택하세요.';
+                    return;
+                }
+                
+                let cardToPlace;
+                if (state === 'placing') {
+                    cardToPlace = drawnCard[0];
+                } else if (state === 'placing_saved') {
+                    // 저장된 카드 선택은 savedCardsGrid에서 처리되어야 함.
+                    // 이 단계에서 Board 클릭은 이미 저장된 카드가 선택되었다고 가정
+                    if (selectedBoardCards.length !== 1) {
+                        gameMessage.textContent = '먼저 배치할 저장된 카드를 선택하세요.';
+                        state = 'playing'; // 오류 방지를 위해 상태 리셋
+                        endAction();
+                        return;
+                    }
+                    cardToPlace = selectedBoardCards[0];
+                    selectedBoardCards = []; // 사용했으므로 리셋
+                }
+                
+                const bonusTurn = placeCardOnBoard(cardToPlace, index, false);
+                
+                if (state === 'placing') {
+                    // 뽑은 카드 사용
+                    drawnCard.shift();
+                    drawnCard = drawnCard.length > 0 ? drawnCard : null;
+                } else if (state === 'placing_saved') {
+                    // 저장된 카드 사용 - 이미 savedCardsGrid 클릭에서 제거됨
+                }
+                
+                gameMessage.textContent = bonusTurn ? `카드 ${cardToPlace} 배치 완료! 연속 숫자 보너스 획득!` : `카드 ${cardToPlace} 배치 완료.`;
+                endAction(bonusTurn);
+
+            } else if (state === 'placing_initial') {
+                if (board[index] !== null) {
+                    gameMessage.textContent = '이미 카드가 있는 칸입니다. 다른 칸을 선택하세요.';
+                    return;
+                }
+
+                if (drawnCard.length === 2) {
+                    // 첫 번째 카드 배치
+                    const cardToPlace = drawnCard.shift();
+                    board[index] = cardToPlace;
+                    gameMessage.textContent = `카드 ${cardToPlace} 배치 완료. 남은 카드 ${drawnCard[0]}을(를) 배치하세요.`;
+                } else if (drawnCard.length === 1) {
+                    // 두 번째 카드 배치
+                    const cardToPlace = drawnCard.shift();
+                    board[index] = cardToPlace;
+                    drawnCard = null; // 초기 배치 완료
+                    gameMessage.textContent = `카드 ${cardToPlace} 배치 완료. 이제 게임을 시작합니다.`;
+                    endAction(false); // 턴 소모 없이 일반 상태로
+                }
+                renderBoard();
+                renderDrawnCard(drawnCard);
+                
+            } else if (state === 'swapping_1' || state === 'swapping_2') {
+                cardSlot.classList.toggle('selected');
+                
+                if (selectedBoardCards.length === 0) {
+                    selectedBoardCards.push(index);
+                    gameMessage.textContent = '교환할 두 번째 보드 칸을 선택하세요.';
+                    state = 'swapping_2';
+                } else if (selectedBoardCards.length === 1) {
+                    const index1 = selectedBoardCards[0];
+                    const index2 = index;
+                    
+                    if (index1 === index2) {
+                        gameMessage.textContent = '같은 칸을 선택했습니다. 두 번째 칸을 다시 선택하거나 처음부터 다시 시작하세요.';
+                        selectedBoardCards = [];
+                        cardSlot.classList.remove('selected');
+                        state = 'swapping_1';
+                        return;
+                    }
+
+                    // 값 교환
+                    [board[index1], board[index2]] = [board[index2], board[index1]];
+                    
+                    // 연속 숫자 보너스 체크 (교환은 턴을 사용했지만, 보너스 턴은 부여 가능)
+                    let bonusTurn = false;
+                    const val1 = board[index1];
+                    const val2 = board[index2];
+                    
+                    // index1 주변 체크
+                    if (val1 !== null) {
+                        const left = board[index1 - 1];
+                        const right = board[index1 + 1];
+                        if ((left !== null && (val1 === left + 1 || val1 === left - 1)) || 
+                            (right !== null && (val1 === right + 1 || val1 === right - 1))) {
+                            bonusTurn = true;
+                        }
+                    }
+                    // index2 주변 체크 (index1 주변에서 이미 보너스가 아니었다면)
+                    if (!bonusTurn && val2 !== null) {
+                        const left = board[index2 - 1];
+                        const right = board[index2 + 1];
+                        if ((left !== null && (val2 === left + 1 || val2 === left - 1)) || 
+                            (right !== null && (val2 === right + 1 || val2 === right - 1))) {
+                            bonusTurn = true;
+                        }
+                    }
+
+                    gameMessage.textContent = bonusTurn ? '위치 교환 완료! 연속 숫자 보너스 획득!' : '위치 교환 완료.';
+                    selectedBoardCards = [];
+                    endAction(bonusTurn);
+                }
+            }
+        }
+
+        // 저장된 카드 클릭 이벤트 핸들러
+        function handleSavedCardClick(event) {
+            if (state !== 'placing_saved') return;
+
+            // 이미 선택된 카드가 있다면 선택 해제
+            document.querySelectorAll('.card-saved.selected').forEach(c => c.classList.remove('selected'));
+            
+            const cardElement = event.currentTarget;
+            cardElement.classList.add('selected');
+            
+            // 선택된 카드의 값을 저장하고, 저장 목록에서 제거
+            const cardValue = parseInt(cardElement.textContent, 10);
+            const savedIndex = savedCards.indexOf(cardValue);
+            
+            if (savedIndex > -1) {
+                savedCards.splice(savedIndex, 1);
+                selectedBoardCards = [cardValue]; // 배치할 카드 값을 임시 저장
+                
+                gameMessage.textContent = `저장된 카드 ${cardValue}을(를) 놓을 보드 칸을 선택하세요.`;
+                updateBoardClickListeners(); // 보드 클릭 모드로 전환
+                renderSavedCards(); // 저장 카드 UI 업데이트 (제거된 상태)
+            }
+        }
+
+        function updateBoardClickListeners() {
+            document.querySelectorAll('.card-slot').forEach((slot, index) => {
+                slot.removeEventListener('click', handleBoardClick);
+                if (state === 'placing' || state === 'placing_saved' || state === 'placing_initial' || state === 'swapping_1' || state === 'swapping_2') {
+                    slot.addEventListener('click', handleBoardClick);
+                    slot.style.cursor = 'pointer';
+                    slot.classList.remove('selected');
+                } else {
+                    slot.style.cursor = 'default';
+                }
+            });
+            // 저장된 카드 리스너는 배치 상태에서만 활성화/비활성화
+            updateSavedCardClickListeners(state === 'placing_saved');
+        }
+
+        function updateSavedCardClickListeners(enable) {
+            document.querySelectorAll('.card-saved').forEach(card => {
+                card.removeEventListener('click', handleSavedCardClick);
+                if (enable) {
+                    card.addEventListener('click', handleSavedCardClick);
+                    card.style.cursor = 'pointer';
+                    card.classList.remove('selected');
+                } else {
+                    card.style.cursor = 'default';
+                    card.classList.remove('selected');
+                }
+            });
+        }
+
+        function renderBoard() {
+            gameBoardElement.innerHTML = '';
+            board.forEach((cardValue, index) => {
+                const cardSlot = document.createElement('div');
+                cardSlot.className = `card-slot ${cardValue !== null ? 'filled' : ''}`;
+                cardSlot.dataset.index = index;
+                cardSlot.textContent = cardValue !== null ? cardValue : (index + 1); // 빈칸에는 인덱스 표시
+                gameBoardElement.appendChild(cardSlot);
+            });
+            updateBoardClickListeners();
+        }
+
+        function renderSavedCards() {
+            savedCardsGrid.innerHTML = '';
+            savedCards.forEach(cardValue => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-saved shadow-md';
+                cardElement.textContent = cardValue;
+                savedCardsGrid.appendChild(cardElement);
+            });
+            updateSavedCardClickListeners(state === 'placing_saved');
+        }
+        
+        function updateTurnCounter() {
+            if (turnCounter) {
+                turnCounter.textContent = `현재 턴: ${turn}`;
+            }
+        }
+
+        function resetCentoGame() {
+            deck = [];
+            board = [];
+            savedCards = [];
+            drawnCard = null;
+            turn = 0;
+            state = 'waiting';
+            selectedBoardCards = [];
+
+            if (gameBoardElement) gameBoardElement.innerHTML = '';
+            if (savedCardsGrid) savedCardsGrid.innerHTML = '';
+            if (drawnCardsContainer) drawnCardsContainer.style.display = 'none';
+            if (gameMessage) gameMessage.textContent = '게임 시작 버튼을 눌러주세요.';
+            updateTurnCounter();
+
+            if (startGameBtn) startGameBtn.style.display = 'inline-block';
+            if (restartGameBtn) restartGameBtn.style.display = 'none';
+            if (drawCardBtn) drawCardBtn.style.display = 'none';
+            if (placeCardBtn) placeCardBtn.style.display = 'none';
+            if (saveCardBtn) saveCardBtn.style.display = 'none';
+            if (placeSavedBtn) placeSavedBtn.style.display = 'none';
+            if (swapCardsBtn) swapCardsBtn.style.display = 'none';
+            
+            updateBoardClickListeners();
+        }
+
+
+        // 페이지 로드 시 기본 컨텐츠 표시
+        window.onload = function() {
+            // 기본적으로 'content-research' 섹션을 표시합니다. (새로 추가된 첫 번째 섹션)
+            showContent('content-research');
+
+            // 내비게이션 버튼에 이벤트 리스너 추가
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.getAttribute('data-target');
+                    showContent(targetId);
+                });
+            });
+
+            // 조 편성기 버튼에 이벤트 리스너 추가
+            const generateButton = document.getElementById('generate-button');
+            if (generateButton) {
+                generateButton.addEventListener('click', generateTeams);
+            }
+
+            // 첸토 게임 요소 초기화
+            getGameElements();
+        };
+    </script>
+</head>
+<body class="h-screen overflow-hidden"> 
+
+    <!-- Main Wrapper: Flex for Sidebar + Content -->
+    <div class="flex h-full">
+
+        <!-- Left Sidebar (Navigation Menu) -->
+        <aside id="nav-sidebar" class="w-64 bg-dark-bg p-4 shadow-2xl flex-shrink-0 overflow-y-auto">
+            <h2 class="text-2xl font-bold text-white mb-6 border-b border-sky-700 pb-3">프로젝트 목차</h2>
+            
+            <nav class="space-y-3">
+                
+                <!-- 항목 1: 비매너 행위 예측 연구 (새로 추가된 메인) -->
+                <button 
+                    class="nav-button w-full text-left py-3 px-4 rounded-xl transition duration-150 ease-in-out font-medium shadow-md
+                           text-gray-300 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-dark-bg"
+                    data-target="content-research"
+                >
+                    <svg class="section-icon inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    비매너 행위 예측 연구
+                </button>
+
+                <!-- 항목 2: 정보과제연구 계획서 (기존 컨텐츠) -->
+                <button 
+                    class="nav-button w-full text-left py-3 px-4 rounded-xl transition duration-150 ease-in-out font-medium shadow-md
+                           text-gray-300 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-dark-bg"
+                    data-target="content-plan"
+                >
+                    <svg class="section-icon inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg> 
+                    정보과제연구 계획서
+                </button>
+
+                <!-- 항목 3: 학생 조 편성기 (새로 추가된 컨텐츠) -->
+                <button 
+                    class="nav-button w-full text-left py-3 px-4 rounded-xl transition duration-150 ease-in-out font-medium
+                           text-gray-300 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-dark-bg"
+                    data-target="content-generator"
+                >
+                    <svg class="section-icon inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h-4v-7l-2-2m0 0l-2 2m2-2V4m-9 8a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+                    학생 조 편성기
+                </button>
+                
+                <!-- 항목 4: 1인용 첸토 게임 (새로 추가된 컨텐츠) -->
+                <button 
+                    class="nav-button w-full text-left py-3 px-4 rounded-xl transition duration-150 ease-in-out font-medium
+                           text-gray-300 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-dark-bg"
+                    data-target="content-cento"
+                >
+                    <svg class="section-icon inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l-3 3 3 3h-4a2 2 0 00-2 2v3a2 2 0 002 2h18a2 2 0 002-2v-3a2 2 0 00-2-2h-4l3-3-3-3h4a2 2 0 002-2V4a2 2 0 00-2-2H3a2 2 0 00-2 2v3a2 2 0 002 2z"></path></svg>
+                    1인용 첸토 게임
+                </button>
+                
+            </nav>
+
+        </aside>
+
+        <!-- Right Content Area (Display Content) -->
+        <main id="content-area" class="flex-grow overflow-y-auto p-4 sm:p-8 lg:p-12 bg-gray-50">
+
+            <!-- 
+                ========================================================================================
+                [컨텐츠 영역 1] 비매너 행위 예측 연구 (새로 추가된 메인 섹션)
+                - ID: content-research
+                ========================================================================================
+            -->
+            <div id="content-research" class="content-section max-w-4xl mx-auto bg-dark-bg text-gray-200 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-700" style="display:none;"> 
+                
+                <!-- 헤더 섹션 (로고 및 타이틀) -->
+                <header class="text-center py-8 mb-8 border-b border-blue-400/50">
+                    <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-400 mb-2">게임 속 비매너 행위 예측 연구</h1>
+                    <p class="text-xl text-gray-400">외적 요소를 활용한 행동 패턴 분석 연구 계획서</p>
+                </header>
+
+                <!-- 연구 개요 섹션 -->
+                <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8 card">
+                    <div class="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3 section-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h2 class="text-2xl font-bold text-gray-100">1. 연구 배경 및 필요성</h2>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        온라인 게임이 보편화되면서 플레이어 간의 <strong>비매너 행위</strong>는 게임의 재미를 저해하고 건강한 게임 생태계를 파괴하는 심각한 문제로 대두되었습니다. 현재 대부분의 게임사는 사후 신고 및 제재 시스템을 운영하지만, 이는 이미 발생한 문제를 해결하는 데 그치며 근본적인 예방에는 한계가 있습니다. 본 연구는 <strong>외적 요소</strong>와 <strong>비매너 행위</strong> 간의 <strong>상관관계</strong>를 분석하여, 잠재적인 비매너 행위자를 사전에 식별하고 예측하는 시스템 개발의 기초를 마련하고자 합니다.
+                    </p>
+                </section>
+
+                <!-- 연구 목표 및 가설 섹션 -->
+                <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8 card">
+                    <div class="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3 section-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 012 .988l-.893 2.572a2 2 0 01-1.258 1.489H11M14 10a2 2 0 11-4 0m4 0a2 2 0 10-4 0m-3 8a2 2 0 10-4 0m4 0a2 2 0 11-4 0m-2 5a2 2 0 11-4 0" />
+                        </svg>
+                        <h2 class="text-2xl font-bold text-gray-100">2. 연구 목표 및 가설</h2>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        본 연구의 궁극적인 목표는 게임 내 <strong>외적 요소</strong>와 플레이어의 <strong>비매너 행위</strong> 발생 확률 사이의 상관관계를 통계적으로 분석하고, 이를 기반으로 예측 모델의 개발 가능성을 탐색하는 것입니다.
+                    </p>
+                    <h3 class="text-xl font-semibold text-gray-100 mb-2">주요 가설:</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-400 pl-4">
+                        <li><strong>가설 1 (시각적 요소):</strong> 특정 캐릭터 스킨이나 과시적 성격이 강한 장비는 플레이어의 공격적이고 충동적인 행동과 유의미한 상관관계를 가질 것이다.</li>
+                        <li><strong>가설 2 (플레이 시간 및 패턴):</strong> 특정 시간대(예: 심야 시간)나 누적 플레이 시간이 많은 유저는 비매너 행위 빈도와 관련이 있을 것이다.</li>
+                        <li><strong>가설 3 (게임 내 성취):</strong> 랭크 티어가 낮은 플레이어일수록 팀워크를 무시하거나 고의적으로 패배를 유도하는 비매너 행위의 경향성이 높을 것이다. 반면, 상위 랭크의 플레이어는 팀 승리에 대한 압박감으로 인해 언어 폭력적인 비매너를 더 많이 보일 수 있다.</li>
+                    </ul>
+                </section>
+
+                <!-- 연구 내용 및 방법 섹션 -->
+                <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8 card">
+                    <div class="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3 section-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.835 5.864 9.387 5.765 8 6.253v13m4-13c1.165-.389 2.613-.29 4 .253v13m-4-13h-4m4 0h4m-9 1a.997.997 0 01-1 1H4a1 1 0 01-1-1v-1a1 1 0 011-1h2a1 1 0 011 1v1zm-2 5h-2a1 1 0 01-1-1v-1a1 1 0 011-1h2a1 1 0 011 1v1zm8-5h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1zm-2 5a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1zm6 0a1 1 0 011-1h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1zm-2-5h2a1 1 0 011 1v1a1 1 0 01-1 1h-2a1 1 0 01-1-1v-1z" />
+                        </svg>
+                        <h2 class="text-2xl font-bold text-gray-100">3. 연구 내용 및 방법</h2>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        본 연구는 데이터 수집부터 분석, 모델링에 이르는 체계적인 과정을 통해 진행됩니다.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 데이터 수집 카드 -->
+                        <div class="bg-gray-700 p-6 rounded-xl shadow-inner border border-gray-600">
+                            <h3 class="text-xl font-semibold text-gray-100 mb-2">데이터 수집</h3>
+                            <p class="text-gray-400 leading-relaxed mb-4">
+                                익명화된 플레이어 프로필 데이터와 게임 내 행동 데이터를 수집합니다.
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 text-gray-400 pl-4">
+                                <li><strong>플레이어 프로필:</strong> 랭크 티어, 레벨, 플레이 시간, 주력 캐릭터, 스킨 등</li>
+                                <li><strong>행동 데이터:</strong> 신고 기록, 채팅 로그, AFK, 고의적 피딩 등</li>
+                            </ul>
+                        </div>
+                        <!-- 데이터 분석 및 모델링 카드 -->
+                        <div class="bg-gray-700 p-6 rounded-xl shadow-xl shadow-inner border border-gray-600">
+                            <h3 class="text-xl font-semibold text-gray-100 mb-2">분석 및 모델링</h3>
+                            <p class="text-gray-400 leading-relaxed mb-4">
+                                수집된 데이터를 통계적으로 분석하고 머신러닝 모델을 구축합니다.
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 text-gray-400 pl-4">
+                                <li><strong>분석 방법:</strong> 카이제곱 검정, 다중 로지스틱 회귀 분석 등</li>
+                                <li><strong>모델 구축:</strong> 로지스틱 회귀, 랜덤 포레스트, 신경망 등</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 기대 효과 및 활용 방안 섹션 -->
+                <section class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg mb-8 card">
+                    <div class="flex items-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400 mr-3 section-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <h2 class="text-2xl font-bold text-gray-100">4. 기대 효과 및 활용 방안</h2>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        본 연구의 결과는 게임 커뮤니티의 건전성을 크게 향상시킬 것입니다.
+                    </p>
+                    <ul class="space-y-4 text-gray-300 pl-4">
+                        <li class="flex items-start">
+                            <span class="text-blue-400 font-bold mr-2 text-2xl">✓</span>
+                            <div>
+                                <h3 class="font-semibold text-gray-100">비매너 행위 사전 예방</h3>
+                                <p class="text-sm text-gray-400">잠재적 비매너 행위자를 사전에 예측하여 매칭 시스템에서 분리하거나 경고 메시지를 보내는 등 예방적 조치를 취할 수 있습니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-400 font-bold mr-2 text-2xl">✓</span>
+                            <div>
+                                <h3 class="font-semibold text-gray-100">효율적인 운영 시스템</h3>
+                                <p class="text-sm text-gray-400">AI 기반의 자동화된 예측 시스템은 운영진의 수동적인 감시 업무를 줄여 운영 효율성을 극대화합니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-400 font-bold mr-2 text-2xl">✓</span>
+                            <div>
+                                <h3 class="font-semibold text-gray-100">게임 디자인 개선</h3>
+                                <p class="text-sm text-gray-400">어떤 요소가 플레이어의 공격성을 유발하는지 파악하여, 보다 긍정적인 행동을 유도하는 게임 디자인 방향을 제시할 수 있습니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <footer class="mt-16 pt-6 border-t border-slate-700 text-center"> 
+                    <p class="text-sm text-gray-500">© 2025 정보과제연구 프로젝트 | 모든 연구자들의 성공적인 과제 수행을 응원합니다! ✨</p> 
+                </footer> 
+            </div> 
+
+
+            <!-- 
+                ========================================================================================
+                [컨텐츠 영역 2] 정보과제연구 계획서 (기존 컨텐츠)
+                - ID: content-plan
+                ========================================================================================
+            -->
+            <div id="content-plan" class="content-section max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl border border-gray-100" style="display:none;"> 
+
+                <!-- 1. Header Section --> 
+                <header class="mb-12 border-b-4 border-primary-sky pb-6"> 
+                    <p class="text-xs sm:text-sm font-semibold text-primary-sky uppercase tracking-widest mb-2">정보과제연구 프로젝트 계획서</p> 
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight"> 
+                        조 편성에 있어 학생들의 만족도에 영향을 미치는 요소에 대한 탐구 
+                    </h1> 
+                    <p class="mt-4 text-lg sm:text-xl text-gray-500 font-medium">연구자: 조선대학교부속고등학교 박재석</p> 
+                </header> 
+
+                <!-- Main Content --> 
+                <div class="space-y-12"> 
+
+                    <!-- Section 1: 연구 주제 (Research Topic) --> 
+                    <section class="p-6 bg-primary-sky/10 rounded-xl card border-l-4 border-primary-sky"> 
+                        <h2 class="text-2xl sm:text-3xl font-bold text-primary-sky flex items-center mb-4"> 
+                            <!-- Target Icon --> 
+                            <svg class="section-icon text-primary-sky" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg> 
+                            1. 연구 주제 
+                        </h2> 
+                        <p class="text-xl font-semibold text-gray-700 p-3 bg-white rounded-lg border border-gray-200"> 
+                            조 편성에 있어 학생들의 만족도에 영향을 줄 수 있는 요소에 대한 탐구 
+                        </p> 
+                    </section> 
+
+                    <!-- Section 2: 서론 (Introduction) --> 
+                    <section> 
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 border-b pb-3 mb-6 flex items-center"> 
+                            <!-- Lightbulb Icon --> 
+                            <svg class="section-icon text-accent-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 20h.01m-6.495-2.5A7.505 7.505 0 0112 12M6.495 17h11.01c.148.455.228.932.228 1.423a3.5 3.5 0 01-3.5 3.5h-5.01a3.5 3.5 0 01-3.5-3.5c0-.491.08-.968.228-1.423zM12 10a2 2 0 100-4 2 2 0 000 4z"></path></svg> 
+                            2. 서론 
+                        </h2> 
+                        <div class="space-y-6 pl-4 border-l-2 border-gray-200"> 
+                            <!-- 가. 연구 동기 및 필요성 --> 
+                            <div class="p-4 bg-white rounded-lg card"> 
+                                <h3 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1 text-accent-amber">가. 연구 동기 및 필요성</h3> 
+                                <p class="text-gray-600"> 
+                                    조를 편성했을 때 아무런 조건 없이 조를 편성할 경우, 학생들이 조에 만족하지 못하고 결과물의 질이 떨어지는 부작용이 발생하는 경우가 많습니다. 이에 학생들의 <strong>조 편성 만족도</strong>와 <strong>작업 효율</strong>에 가장 큰 영향을 주는 요소가 무엇인지 파악하고, 이를 조 편성에 반영해 <strong>최대 다수의 행복</strong>을 누릴 수 있게 하기 위해 이 연구를 시작하게 되었습니다. 
+                                </p> 
+                            </div> 
+
+                            <!-- 나. 연구 목적 --> 
+                            <div class="p-4 bg-white rounded-lg card"> 
+                                <h3 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1 text-accent-amber">나. 연구 목적</h3> 
+                                <p class="text-gray-600"> 
+                                    다양한 프로젝트에서의 학생들의 조 편성에서 가장 중요한 요소에 대해 파악하고, 어떠한 부분이 학생들의 만족도와 효율에 영향을 크게 미치는 지에 관한 정보를 <strong>설문을 통한 데이터 분석</strong>을 이용해 도출하는 것을 목적으로 합니다. 
+                                </p> 
+                            </div> 
+
+                            <!-- 다. 연구 문제 --> 
+                            <div class="p-4 bg-white rounded-lg card bg-red-50/50"> 
+                                <h3 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1 text-accent-amber">다. 연구 문제 (Research Questions)</h3> 
+                                <ul class="list-disc list-inside space-y-2 text-gray-600 pl-4"> 
+                                    <li><strong>1.</strong> 조 편성에 있어서 학생들의 <strong>만족도</strong>에 관련된 가장 중요한 요소는 무엇일까?</li> 
+                                    <li><strong>2.</strong> 조 편성에 있어서 학생들의 <strong>작업 효율</strong>에 관련된 가장 중요한 요소는 무엇일까?</li> 
+                                </ul> 
+                            </div> 
+                        </div> 
+                    </section> 
+
+                    <!-- Section 3: 이론적 배경 (Theoretical Background) --> 
+                    <section> 
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 border-b pb-3 mb-6 flex items-center"> 
+                            <!-- Book Icon --> 
+                            <svg class="section-icon text-primary-sky" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.5l.5-4.5h-1L12 6.5zm0 14.5l-.5 4.5h1l-.5-4.5zM7.75 12l-4.5-.5v1l4.5.5zM16.25 12l4.5-.5v1l-4.5.5zM12 12a4.5 4.5 0 100-9 4.5 4.5 0 000 9z"></path></svg> 
+                            3. 이론적 배경 
+                        </h2> 
+                        <div class="p-6 bg-gray-50 rounded-xl card border-l-4 border-gray-300"> 
+                            <h3 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1">가. 관련 이론/기술 및 선행 연구 조사</h3> 
+                            <p class="text-gray-600"> 
+                                본 연구에서는 설문을 통해 얻은 데이터를 연구에 의미 있는 정보로 변환하기 위해 <strong>통계 분석</strong>과 <strong>데이터 시각화 기법</strong>을 활용할 것입니다. 특히, 다양한 요소가 반영된 조 편성 결과와 학생들의 만족도 및 작업 효율 간의 <strong>상관 관계 분석</strong> 기술을 적용하여 핵심 요소를 도출하는 데 중점을 둡니다. 
+                            </p> 
+                        </div> 
+                    </section> 
+
+                    <!-- Section 4: 연구 내용 및 방법 (Content & Method) --> 
+                    <section> 
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 border-b pb-3 mb-6 flex items-center"> 
+                            <!-- Clipboard/List Icon --> 
+                            <svg class="section-icon text-primary-sky" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg> 
+                            4. 연구 내용 및 방법 
+                        </h2> 
+                        <div class="space-y-6"> 
+                            <!-- 연구 대상 --> 
+                            <div class="p-4 bg-gray-100 rounded-lg card"> 
+                                <h3 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1 text-primary-sky">연구 대상</h3> 
+                                <p class="text-gray-600"> 
+                                    <strong>조선대학교부속고등학교 2학년 학생 100명</strong>을 대상으로 합니다. 
+                                </p> 
+                            </div> 
+
+                            <!-- 연구 절차 및 방법 --> 
+                            <div class="p-4 bg-white rounded-lg card"> 
+                                <h3 class="text-xl font-semibold text-gray-700 mb-2 border-b pb-1 text-primary-sky">연구 절차 및 방법</h3> 
+                                <ol class="list-decimal list-inside space-y-3 text-gray-600 pl-4"> 
+                                    <li><strong class="font-medium">1단계 (의견 수렴)</strong>: 구글 폼을 이용하여 학생들이 조 편성에 있어 가장 중요하게 생각하는 요소들에 대해 다양한 의견을 수렴합니다.</li> 
+                                    <li><strong class="font-medium">2단계 (데이터 분석 및 2차 조사)</strong>: 수집한 응답 데이터를 통계 프로그램을 활용하여 분석하고, 이를 바탕으로 한 조를 짠 학생들의 만족도에 대해 추가적으로 조사합니다.</li> 
+                                    <li><strong class="font-medium">3단계 (결과 도출 및 보고서 작성)</strong>: 두 설문의 결과를 바탕으로 학생들의 조 편성에 대한 만족도와 능률에 가장 큰 영향을 미치는 요소와 그 상관 관계에 대한 최종 보고서를 작성합니다.</li> 
+                                </ol> 
+                            </div> 
+                        </div> 
+                    </section> 
+
+                    <!-- Section 5: 기대 효과 및 활용 방안 (Expected Effects) --> 
+                    <section class="p-6 bg-green-50 rounded-xl card border-l-4 border-green-500"> 
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 border-b pb-3 mb-6 flex items-center text-green-700"> 
+                            <!-- Star/Impact Icon --> 
+                            <svg class="section-icon text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4M4 19h4m5-15l2 2m0 0l-2 2m2-2L10 9m0 0l-2 2M13 3l.01.01M10 21l.01.01M12 7l1.379 3.012 3.204 1.831-3.204 1.831-1.379 3.012-1.379-3.012-3.204-1.831 3.204-1.831 1.379-3.012z"></path></svg> 
+                            5. 기대 효과 및 활용 방안 
+                        </h2> 
+                        <div class="space-y-4 text-gray-600"> 
+                            <p class="font-medium text-gray-700"> 
+                                본 연구의 분석 결과는 실제 <strong>조 편성 작업에 활용</strong>되어, 작업 수행에서의 학생들의 <strong>만족도와 효율을 획기적으로 높이는 근거</strong> 자료로 사용될 수 있습니다. 
+                            </p> 
+                            <p class="border-t pt-3"> 
+                                추가적으로, 여러가지 요소에 대한 <strong>가중치를 부여</strong>하여 조 편성 결과를 더욱 알맞게 하는 방법으로도 활용될 수 있을 것으로 기대됩니다. 이는 교육 현장에서 효과적인 협업 환경을 조성하는 데 기여할 것입니다. 
+                            </p> 
+                        </div> 
+                    </section> 
+
+                    <!-- Section 6: 참고 문헌 (References) --> 
+                    <section> 
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 border-b pb-3 mb-6 flex items-center"> 
+                            <!-- Link Icon --> 
+                            <svg class="section-icon text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.881L16 9.656a4 4 0 000-5.656l-4-4a4 4 0 10-5.656 5.656l1.102 1.101"></path></svg> 
+                            6. 참고 문헌 
+                        </h2> 
+                        <div class="p-6 bg-gray-50 rounded-xl card border-l-4 border-gray-400 text-sm sm:text-base"> 
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">가. 참고 문헌 (APA 7th Edition Style)</h3> 
+                            <ul class="space-y-4 text-gray-600"> 
+                                <li class="pl-4 text-gray-700"> 
+                                    Tuckman, B. W. (1965). Developmental sequence in small groups. <em class="font-semibold">Psychological Bulletin</em>, <span class="italic">63</span>(6), 384–399. 
+                                </li> 
+                                <li class="pl-4 text-gray-700"> 
+                                    Hackman, J. R., &amp; Oldham, G. R. (1976). Motivation through the design of work: Test of a theory. <em class="font-semibold">Organizational Behavior and Human Performance</em>, <span class="italic">16</span>(2), 250–279. 
+                                </li> 
+                                <li class="pl-4 text-gray-700"> 
+                                    Wageman, R. (1995). Interdependence and group effectiveness. <em class="font-semibold">Administrative Science Quarterly</em>, <span class="italic">40</span>(1), 145–180. 
+                                </li> 
+                                <li class="pl-4 text-gray-700"> 
+                                    조직개발연구소. (2020). <em class="font-semibold">팀워크와 만족도에 영향을 미치는 리더십 요인 분석</em>. 한국경영학회. 
+                                </li> 
+                            </ul> 
+                        </div> 
+                    </section> 
+                </div> 
+
+                <!-- 3. Footer Section --> 
+                <footer class="mt-16 pt-6 border-t border-gray-200 text-center"> 
+                    <p class="text-sm text-gray-500">© 2025 정보과제연구 프로젝트 | 모든 연구자들의 성공적인 과제 수행을 응원합니다! ✨</p> 
+                </footer> 
+            </div> 
+
+
+            <!-- 
+                ========================================================================================
+                [컨텐츠 영역 3] 학생 조 편성기 (새로 추가됨)
+                - ID: content-generator
+                ========================================================================================
+            -->
+            <div id="content-generator" class="content-section max-w-4xl mx-auto bg-gray-900 text-gray-200 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-700" style="display:none;">
+                
+                <h1 class="text-4xl font-extrabold text-center mb-8 text-sky-400 border-b border-sky-700 pb-4">👨‍👩‍👧‍👦 학생 조 편성기</h1>
+                <p class="text-center text-gray-400 mb-8">쉼표로 구분된 학생 명단을 입력하고, 한 조의 인원수를 설정하여 무작위 팀을 편성합니다.</p>
+                
+                <div class="input-group mb-6">
+                    <label for="students" class="block mb-2 text-gray-300 font-semibold">학생 이름 (쉼표로 구분):</label>
+                    <textarea id="students" class="w-full h-32 p-3 rounded-lg border border-gray-600 bg-gray-800 text-gray-100 placeholder-gray-500 focus:ring-sky-500 focus:border-sky-500" placeholder="예: 명건희, 김민지, 이수호, 최유리, 정우진"></textarea>
+                </div>
+
+                <div class="input-group mb-8 flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <label for="group-size" class="block text-gray-300 font-semibold">한 조의 인원수:</label>
+                    <input type="number" id="group-size" class="w-24 px-3 py-2 text-center" value="4" min="1">
+                    <button id="generate-button" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white py-3 shadow-lg">
+                        조 편성하기
+                    </button>
+                </div>
+                
+                <div class="result-container mt-10 p-6 bg-gray-800 rounded-xl shadow-inner border border-gray-700" id="result-container" style="display: none;">
+                    <h2 class="text-2xl font-bold mb-4 text-sky-400 border-b border-gray-700 pb-2">✅ 편성 결과</h2>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 team-list" id="team-results">
+                        <!-- 팀 결과가 여기에 표시됩니다 -->
+                    </ul>
+                </div>
+            </div>
+
+
+            <!-- 
+                ========================================================================================
+                [컨텐츠 영역 4] 1인용 첸토 게임 (새로 추가됨)
+                - ID: content-cento
+                ========================================================================================
+            -->
+            <div id="content-cento" class="content-section max-w-4xl mx-auto bg-gray-900 text-gray-200 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-700" style="display:none;">
+                
+                <h1 class="text-4xl font-extrabold text-center mb-4 text-amber-400 border-b border-amber-700 pb-4">🃏 1인용 첸토 게임</h1>
+                <div class="text-center mb-6 p-4 bg-gray-800 rounded-xl">
+                    <p class="text-lg font-semibold text-gray-300">
+                        1부터 100까지의 카드를 오름차순으로 10개의 보드 칸에 모두 채워 넣는 솔리테어 게임입니다.
+                    </p>
+                    <p id="game-rules" class="text-left mt-4 text-gray-400 text-sm">
+                        <strong class="text-amber-300">게임 규칙:</strong>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><strong>보드 규칙:</strong> 10개의 칸에는 항상 오름차순의 숫자가 들어가야 합니다. (예: `50` 옆에 `40`을 놓을 수 없음)</li>
+                            <li><strong>게임 시작:</strong> 게임 시작 시 2장의 카드를 뽑아 보드의 빈칸에 모두 배치해야 합니다.</li>
+                            <li><strong>턴 행동:</strong> 매 턴마다 덱에서 카드를 1장 뽑아 배치하거나 저장할 수 있습니다. (뽑지 않고 저장된 카드 배치/교환 가능)</li>
+                            <li><strong>카드 저장:</strong> 뽑은 카드를 덱으로 돌려보내지 않고 따로 저장해둘 수 있습니다. 저장된 카드는 턴 소모 없이 언제든 배치할 수 있습니다.</li>
+                            <li><strong>카드 교환:</strong> 보드에 있는 카드 2장의 위치를 교환할 수 있습니다. 이 행동은 1턴을 소모합니다.</li>
+                            <li><strong>연속 숫자 보너스:</strong> 카드를 배치하거나 교환한 후, 주변(왼쪽 또는 오른쪽)의 카드와 연속하는 숫자일 경우(예: `50` 옆에 `49` 또는 `51`), 추가 턴을 얻어 한 번 더 행동을 수행할 수 있습니다.</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <p id="turn-counter" class="text-xl font-bold text-gray-400 mt-2 text-center">현재 턴: 0</p>
+                <p id="game-message" class="text-center text-lg font-bold text-red-400 mb-4"></p>
+                
+                <div id="drawn-cards-container" class="flex justify-center space-x-4 mb-6">
+                    <!-- 뽑은 카드가 여기에 동적으로 렌더링 됩니다 -->
+                </div>
+                
+                <div id="action-buttons" class="flex flex-wrap justify-center space-x-2 sm:space-x-4 mb-6" style="display: none;">
+                    <button id="draw-card-btn" class="flex-1 max-w-xs px-4 py-3 bg-sky-600 hover:bg-sky-500 text-white shadow-lg">카드 뽑기 (1턴 소모)</button>
+                    <button id="place-card-btn" class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-500 text-white shadow-lg" style="display:none;">뽑은 카드 배치하기</button>
+                    <button id="save-card-btn" class="flex-1 px-4 py-3 bg-amber-600 hover:bg-amber-500 text-white shadow-lg" style="display:none;">뽑은 카드 저장하기</button>
+                    <button id="place-saved-btn" class="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-500 text-white shadow-lg" style="display:none;">저장 카드 배치 (0턴 소모)</button>
+                    <button id="swap-cards-btn" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-500 text-white shadow-lg" style="display:none;">카드 위치 교환 (1턴 소모)</button>
+                </div>
+                
+                <div id="game-board-container" class="mb-6 p-4 bg-gray-800 rounded-xl shadow-inner border border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-300 mb-3 text-center">메인 보드 (10칸)</h2>
+                    <div id="game-board" class="card-grid">
+                        <!-- 카드 슬롯이 여기에 동적으로 생성됩니다 -->
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap justify-center space-x-4">
+                    <button id="start-game-btn" class="flex-1 max-w-xs bg-sky-700 hover:bg-sky-600 text-white py-3 shadow-lg">게임 시작</button>
+                    <button id="restart-game-btn" class="flex-1 max-w-xs bg-red-700 hover:bg-red-600 text-white py-3 shadow-lg" style="display: none;">게임 재시작</button>
+                </div>
+
+                <div id="saved-cards-container" class="mt-8">
+                    <h2 class="text-xl font-bold text-gray-300 mb-2 text-center">저장된 카드 (덱: <span id="deck-count">100</span>장)</h2>
+                    <div id="saved-cards-grid" class="saved-card-container">
+                        <p class="text-gray-500 text-center w-full">여기에 저장된 카드들이 나타납니다.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div> 
 
 </body>
 </html>
