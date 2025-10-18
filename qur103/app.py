@@ -13,17 +13,20 @@ def main():
 
     # 현재 파일(app.py)의 절대 경로를 얻습니다.
     current_dir = os.path.dirname(__file__)
-    # HTML 파일의 절대 경로를 설정합니다.
-    html_file_path = os.path.join(current_dir, "htmls", "index.html")
+    # 렌더링할 HTML 파일 목록
+    html_files = ["index.html", "index2.html"]
 
-    # HTML 파일을 읽어서 변수에 저장합니다.
-    try:
-        with open(html_file_path, "r", encoding="utf-8") as f:
-            html_code = f.read()
-            # st.components.v1.html 함수를 사용하여 HTML 코드를 렌더링합니다.
-            components.html(html_code, height=1200, scrolling=True)
-    except FileNotFoundError:
-        st.error(f"HTML 파일을 찾을 수 없습니다. '{html_file_path}' 경로를 확인해 주세요.")
+    for html_file in html_files:
+        html_file_path = os.path.join(current_dir, "htmls", html_file)
+
+        # HTML 파일을 읽어서 변수에 저장합니다.
+        try:
+            with open(html_file_path, "r", encoding="utf-8") as f:
+                html_code = f.read()
+                # st.components.v1.html 함수를 사용하여 HTML 코드를 렌더링합니다.
+                components.html(html_code, height=1200, scrolling=True)
+        except FileNotFoundError:
+            st.error(f"HTML 파일을 찾을 수 없습니다. '{html_file_path}' 경로를 확인해 주세요.")
 
 if __name__ == "__main__":
     main()
